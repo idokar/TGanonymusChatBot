@@ -57,6 +57,7 @@ def run():
     """
     DB.bind(provider='sqlite', filename=f"{DATA_FILE}_DB.sqlite", create_db=True)
     DB.generate_mapping(create_tables=True)
+    add_user(CREATOR, is_admin=True)
     scheduler.add_job(clean_cash, trigger='interval', days=1)
     scheduler.start()
     bot.run()
