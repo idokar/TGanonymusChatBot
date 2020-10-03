@@ -1,6 +1,27 @@
 from re import sub
 
 from bot.helpers import *
+from main import CREATOR
+
+
+def block_list(lang):
+    msg = MSG[lang]['block_list']
+    for i in data['ban']:
+        user = get_user(int(i))
+        msg += format_message('{link} ({uid})\n', user) if user else i
+    msg += '~empty~' if not data['ban'] else ''
+    return msg
+
+
+@db_session
+def admin_list(lang):
+    msg = MSG[lang]['admin_list']
+    for admin in get_admins().values():
+        if admin.uid == CREATOR:
+            msg += format_message('🎖 {link} ({uid})\n', admin)
+        else:
+            msg += format_message('🥇 {link} ({uid})\n', admin)
+    return msg
 
 
 @Client.on_message(is_admin & filters.private & filters.text &
@@ -32,11 +53,3 @@ def info_and_help(c, m):
 def settings_keyboard(c, m):
     pass  # TODO: settings for admins only
 
-# @bot.on_message(is_admin & filters.private & filters.command(MSG['commands']['block_list']))
-# def ban_list(_, m):
-#     msg = MSG[get_user(m.from_user.id).language]['block_list']
-#     for i in data['ban']:
-#         user = get_user(int(i))
-#         msg += format_message('{link} ({uid})\n', user) if user else i
-#     msg += '~empty~' if not data['ban'] else ''
-#     m.reply(msg, quote=True)
