@@ -55,7 +55,7 @@
     },
     "he": {
         "ban_msg": "⛔️ **נחסמת** ⛔️\n**כעת אין ביכולתך לשלוח הודעות דרך צ'אט זה**",
-        "admin_welcome": "ברוך הבא {name}\nאתה מנהל כעת ברובוט הזה, שלח `/פקודות` בכדי לראות את רשימת כל הפקודות",
+        "admin_welcome": "ברוך הבא {name}\nאתה מנהל כעת ברובוט הזה, שלח `/help` בכדי לראות את רשימת כל הפקודות",
         "forwarded": "**לא ניתן לשלוח הודעות מועברות!**",
         "edited": "ההודעה נערכה ✏️\n",
         "user_not_found": "לא מצאתי לאיזה משתמש להגיב,\nאנא השב להודעת המשתמש או להודעה שאומרת \"השב להודעה זו\"",
@@ -80,20 +80,7 @@
         "group_added": "\uD83D\uDD17הקבוצה `{title}` נוספה בהצלחה.\nכעת רק חברי קבוצה זו יוכלו לשלוח הודעות דרך הבוט",
         "group_removed": "The Group {title} was successfully removed.\nNow anyone will be able to send messages through the bot",
 
-        "settings": "**Bot settings:**\nHere you can change the your language, remove the Welcome message (to re set the welcome message use: `/set welcome` command), see the admin list and the blocked users.",
-        "chang_lang": "Here you can change the bot language.\n**Select your language:**",
-        "explain_welcome": "To disable the welcome message press on ✅.\n\n**Disabled:**\t☑️\n**Enabled:**\t✅",
-        "welcome_removed": "**The welcome message has removed.**\nTo re set the welcome message use: `/set welcome` command, for more help use `/help`",
-        "users_help": "בעזרת הבוט הזה תוכלו ליצור קשר עם המנהל/ים של הבוט.\nניתן גם לשנות את שפת הבוט לשפות נתמכות אחרות.\n\nהבוט הזה הוא פרויקט קוד פתוח, אם ברצונך להוסיף שפות נוספות לרובוט או להציע לו שיפורים או ליצור לעצמך רובוט שכזה, תוכל/י [ליצור קשר עם יוצר הבוט](https://t.me/ido1234) או לחלופין לשלוח הצעות ב[דף הבוט ב- GitHub](https://github.com/idokar/TGanonymusChatBot)",
-        "admins_help": "With this bot users can contact you and more admins of this bot (see the 'Admins' button below), you can also limit the bot for a spesific group, block users from using the bot, set a welcome message and change the bot language.\n\nThe bot is an open source project, if you want to add additional languages to the bot or offer it improvements or create one for yourself as well, you can [contact the creator of the bot](https://t.me/ido1234) or alternatively send suggestions on the [bot's page in GitHub](https://github.com/idokar/TGanonymusChatBot)",
-        "button_block": "חסימת משתמשים",
-        "button_admins": "הוספת מנהלים",
-        "button_welcome": "הודעת ברוך הבא",
-        "button_group": "הגדרות קבוצה",
-        "button_admin_list": "רשימת מנהלים",
-        "button_block_list": "רשימת חסומים",
-        "button_remove_welcome": "הודעת ברוך הבא",
-        "button_back": "הקודם ↩️",
-        "button_lang": "\uD83C\uDF10 שינוי שפה \uD83C\uDF10"
+        "users_help": "בעזרת הבוט הזה תוכלו ליצור קשר עם המנהל/ים של הבוט.\nניתן גם לשנות את שפת הבוט לשפות נתמכות אחרות.\n\nהבוט הזה הוא פרויקט קוד פתוח, אם ברצונך להוסיף שפות נוספות לרובוט או להציע לו שיפורים או ליצור לעצמך רובוט שכזה, תוכל/י [ליצור קשר עם יוצר הבוט](https://t.me/ido1234) או לחלופין לשלוח הצעות ב[דף הבוט ב- GitHub](https://github.com/idokar/TGanonymusChatBot)"
+
     }
 }
