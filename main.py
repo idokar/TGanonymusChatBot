@@ -6,32 +6,32 @@ import logging
 from bot.helpers import *
 
 
-# set scheduler
+# set scheduler #
 scheduler = BackgroundScheduler()
 
-# Set working directory to store the data
+# Set working directory to store the data #
 mkdir('Data') if not path.isdir('Data') else None
 
-# Initial Client
+# Initial Client #
 bot = Client("MySandBox")
 
-# Creat logger
+# Creat logger #
 logger = logging.getLogger('main')
 _format = '%(asctime)s - %(levelname)s - %(name)s : %(message)s'
-logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
+# logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
 
-# Defining data files name depending the session name
+# Defining data files name depending the session name #
 CREATOR = None  # TODO: insert the creator ID
 DATA_FILE = f"Data{sep}{bot.session_name}"
 
-# import data
+# Import data #
 if path.isfile(f'{DATA_FILE}_data.json'):
     with open(f'{DATA_FILE}_data.json', 'r') as f:
         data = json.load(f, parse_int=int)
 else:
     data = {'start_msg': '', 'group': None, 'non_participant': '', 'ban': list()}
 
-# import translation and messages
+# Import translation and messages #
 with open(f'bot{sep}language.json', 'r', encoding='utf8') as f:
     MSG = json.load(f, parse_int=int)
 

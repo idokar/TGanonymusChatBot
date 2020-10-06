@@ -36,7 +36,19 @@
         "success_remove_admin": "**Success**\nNow {link} ({uid}) is not admin anymore",
         "bot_promote": "I must be an admin in this group with the following permissions:\n\t▪️Delete Messages\n\t▪️Ban Users",
         "group_added": "\uD83D\uDD17The group `{title}` was successfully added.\nNow only This group members will be able to send messages through the bot",
-        "group_removed": "The Group {title} was successfully removed.\nNow anyone will be able to send messages through the bot"
+        "group_removed": "The Group {title} was successfully removed.\nNow anyone will be able to send messages through the bot",
+
+        "settings": "**Bot settings:**\nHere you can change the your language, remove the Welcome message (to re set the welcome message use: `/set welcome` command), see the admin list and the blocked users.",
+        "chang_lang": "Here you can change the bot language.\n**Select your language:**",
+        "explain_welcome": "To disable the welcome message press on ✅.\n\n**Disabled:**\t☑️\n**Enabled:**\t✅",
+        "welcome_removed": "**The welcome message has removed.**\nTo re set the welcome message use: `/set welcome` command, for more help use `/help`",
+        "admins_help": "",
+        "users_help": "With this bot you can contact the admin/s of this bot.\nYou can also change the bot language.\n\nThe bot is an open source project, if you want to add additional languages to the bot or offer it improvements or create one for yourself as well, you can [contact the creator of the bot](https://t.me/ido1234) or alternatively send suggestions on the [bot's page in GitHub](https://github.com/idokar/TGanonymusChatBot)", ,
+        "button_admin_list": "Admins list",
+        "button_block_list": "Blocked list",
+        "button_remove_welcome": "Welcome message",
+        "button_back": "Back ↩️",
+        "button_lang": "\uD83C\uDF10 Chang language \uD83C\uDF10"
     },
     "he": {
         "ban_msg": "⛔️ **נחסמת** ⛔️\n**כעת אין ביכולתך לשלוח הודעות דרך צ'אט זה**",
@@ -62,6 +74,10 @@
         "success_add_admin": "**Success**\nNow {link} ({uid}) is admin",
         "success_remove_admin": "**Success**\nNow {link} ({uid}) is not admin anymore",
         "bot_promote": "I must be an admin in this group with the following permissions:\n\t▪️Delete Messages\n\t▪️Ban Users",
-        "group_added": "\uD83D\uDD17הקבוצה `{title}` נוספה בהצלחה.\nכעת רק חברי קבוצה זו יוכלו לשלוח הודעות דרך הבוט"
+        "group_added": "\uD83D\uDD17הקבוצה `{title}` נוספה בהצלחה.\nכעת רק חברי קבוצה זו יוכלו לשלוח הודעות דרך הבוט",
+        "group_removed": "The Group {title} was successfully removed.\nNow anyone will be able to send messages through the bot",
+
+        "users_help": "בעזרת הבוט הזה תוכלו ליצור קשר עם המנהל/ים של הבוט.\nניתן גם לשנות את שפת הבוט לשפות נתמכות אחרות.\n\nהבוט הזה הוא פרויקט קוד פתוח, אם ברצונך להוסיף שפות נוספות לרובוט או להציע לו שיפורים או ליצור לעצמך רובוט שכזה, תוכל/י [ליצור קשר עם יוצר הבוט](https://t.me/ido1234) או לחלופין לשלוח הצעות ב[דף הבוט ב- GitHub](https://github.com/idokar/TGanonymusChatBot)"
+
     }
 }

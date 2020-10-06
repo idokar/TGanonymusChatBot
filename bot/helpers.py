@@ -175,7 +175,6 @@ def get_id(message: Message):
 
 def _is_admin(_, __, m: Message) -> bool:
     if not m.from_user:
-        print(m)
         return False
     return bool(m.from_user.id in get_admins().keys())
 
