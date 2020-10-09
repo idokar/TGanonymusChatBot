@@ -113,6 +113,9 @@ def get_admins() -> Dict[int, User]:
 
 
 def save_data():
+    """
+    save the dada json that contains the welcome message, group and blocked list.
+    """
     with open(f'{DATA_FILE}_data.json', "w", buffering=1) as file:
         json.dump(data, file, indent=4)
 
@@ -160,7 +163,11 @@ def format_message(message: str, user: User, **kwargs) -> str:
     )
 
 
-def get_id(message: Message):
+def get_id(message: Message) -> Union[int, None]:
+    """
+    function to cathe the use ID from the given message.
+    :return the user ID or None in case of filer
+    """
     if message.reply_to_message.forward_from:
         uid = message.reply_to_message.forward_from.id
     else:

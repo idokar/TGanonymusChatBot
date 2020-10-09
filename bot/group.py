@@ -4,9 +4,12 @@ from .helpers import *
 
 @Client.on_message(is_admin & ~filters.private & filters.command(MSG['commands']['group']))
 def set_group(_, m: Message):
+    """
+    function to limit the bot to a group, send messages on the group.
+    """
     if data['group']:
         return m.chat.leave()
-    m.chat.get_member(m.from_user.id)
+
     if m.chat.get_member(m.from_user.id).status in ['creator', 'administrator']:
         me = m.chat.get_member('me')
         if me.can_delete_messages and me.can_restrict_members:
@@ -22,6 +25,9 @@ def set_group(_, m: Message):
 @Client.on_message((is_admin & ~filters.private & filters.command(MSG['commands']['remove_group'])) |
                    filters.left_chat_member)
 def unset_group(c, m: Message):
+    """
+    function to remove the group. don't send messages in the group.
+    """
     if not data['group']:
         return
     if m.left_chat_member and m.left_chat_member.is_self:
@@ -37,6 +43,10 @@ def unset_group(c, m: Message):
 
 @Client.on_message(filters.new_chat_members)
 def joined_group(_, m: Message):
+    """
+    check permissions on joining the group. if someone added the bot,
+    the bot will check it's permissions immediately and after 5 minutes if necessary.
+    """
     if data['group'] and str(m.chat.id) != data['group']:
         m.chat.leave()
     for i in m.new_chat_members:

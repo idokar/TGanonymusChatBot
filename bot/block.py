@@ -3,7 +3,14 @@ from .helpers import *
 
 
 @db_session
-def report_to_admins(admin, user, c, message):
+def report_to_admins(admin: User, user: User, c: Client, message: str):
+    """
+    function to report the admins that admin reply to a user.
+    :param admin: the admin that reply the user.
+    :param user: the user the admin replied to.
+    :param c: pyrogram.Client to send the message.
+    :param message: the message type to send to the admins
+    """
     for k, v in get_admins().items():
         if k != admin.uid:
             try:
@@ -18,7 +25,11 @@ def report_to_admins(admin, user, c, message):
 
 @Client.on_message(is_admin & filters.reply & filters.private &
                    filters.command(MSG['commands']['block']))
-def block(c, m):
+def block(c: Client, m: Message):
+    """
+    function to block a user from using the bot.
+
+    """
     user = get_id(m)
     if not user:
         return
@@ -39,7 +50,11 @@ def block(c, m):
 
 @Client.on_message(is_admin & filters.reply & filters.private &
                    filters.command(MSG['commands']['unblock']))
-def unblock(c, m):
+def unblock(c: Client, m: Message):
+    """
+    unblock users, allow user to use the bot again. this function tell the user
+    that he is not blocked.
+    """
     user = get_id(m)
     if not user:
         return

@@ -18,7 +18,7 @@ bot = Client("MySandBox")
 # Creat logger #
 logger = logging.getLogger('main')
 _format = '%(asctime)s - %(levelname)s - %(name)s : %(message)s'
-# logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
+logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
 
 # Defining data files name depending the session name #
 CREATOR = None  # TODO: insert the creator ID
@@ -37,7 +37,7 @@ with open(f'bot{sep}language.json', 'r', encoding='utf8') as f:
 
 
 @bot.on_disconnect()
-def turning_off(c: Client):
+async def turning_off(c: Client):
     """
     function to class the program gently in case of connection error.
     this function logging the error and close the program with code 1

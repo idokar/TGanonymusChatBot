@@ -59,7 +59,7 @@ async def start(c, m):
         if str(user.uid) in data['ban']:
             return await m.reply(MSG[user.language]['ban_msg'], quote=True)
         if data['start_msg']:
-            await m.reply(format_message(data['start_msg'], user))
+            await m.reply(format_message(data['start_msg'], user).replace('{{', '{').replace('}}', '}'))
         await forward_to_admins(m, user, 'reply')
     else:
         if data['non_participant']:
@@ -67,7 +67,7 @@ async def start(c, m):
 
 
 @Client.on_message(filters.private & ~filters.me & ~is_admin &
-                   ~filters.create(lambda _, __, m: bool(m.command)))
+                   ~filters.create(lambda _, __, m: bool(m.command)), group=1)
 async def get_messages(c, m):
     user = add_user(m.from_user.id)
     if not await user.member(c):
