@@ -4,9 +4,9 @@
         "unblock": ["unblock", "הסר חסימה"],
         "promote": ["promote", "הפוך למנהל"],
         "demote": ["demote", "הסר מנהל"],
-        "welcome": ["set welcome", "ברוך הבא"],
-        "group": ["set group", "הגדר קבוצה"],
-        "remove_group": ["unset group", "הסר קבוצה"],
+        "welcome": ["set_welcome", "ברוך הבא"],
+        "group": ["set_group", "הגדר קבוצה"],
+        "remove_group": ["unset_group", "הסר קבוצה"],
         "settings": ["settings", "הגדרות"]
     },
     "en": {
