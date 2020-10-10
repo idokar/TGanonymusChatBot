@@ -11,7 +11,7 @@
     },
     "en": {
         "ban_msg": "⛔️ **You are blocked** ⛔️\n**This chat is not currently available for you**",
-        "admin_welcome": "Welcome {name}\nyou are an admin on this bot, use `/help` to see all the commands list",
+        "admin_welcome": "Welcome {name}\nyou are an admin on this bot, use /help to see all the commands list",
         "forwarded": "**You can't forward messages to this bot!**",
         "edited": "The message was edited ✏️\n",
         "user_not_found": "I couldn't find a user to reply to,\nPlease reply to the user message or the message that says \"reply to this message\"",
@@ -57,7 +57,7 @@
     },
     "he": {
         "ban_msg": "⛔️ **נחסמת** ⛔️\n**כעת אין ביכולתך לשלוח הודעות דרך צ'אט זה**",
-        "admin_welcome": "ברוך הבא {name}\nאתה מנהל כעת ברובוט הזה, שלח `/help` בכדי לראות את רשימת הפקודות",
+        "admin_welcome": "ברוך הבא {name}\nאתה מנהל כעת ברובוט הזה, שלח /help בכדי לראות את רשימת הפקודות",
         "forwarded": "**לא ניתן להעביר הודעות לרובוט זה**",
         "edited": "ההודעה נערכה ✏️\n",
         "user_not_found": "לא מצאתי לאיזה משתמש להגיב,\nאנא השב להודעת המשתמש או להודעה שאומרת \"השב להודעה זו\"",
