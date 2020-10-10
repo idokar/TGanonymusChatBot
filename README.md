@@ -32,7 +32,7 @@ The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), 
     #####Example
     `api_id = 12345`<br>
     `api_hash = 0123456789abcdef0123456789abcdef`<br>
-    `bot_token = 123456789:ABCdefGHiJ4KlMnO10pqO_rst20uvw5X1_Y`
+    `bot_token = 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`
 5. Enter the creator ID (as int) in [main.py](https://github.com/idokar/TGanonymusChatBot/blob/master/main.py) at line `24`
 6. Run the bot.
 
