@@ -57,4 +57,5 @@ The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), 
 
 
 ## todo
-- [ ]  bot maker
+- [ ]  add bot factory to create instances of this bot.
+- [ ]  add admins group (to receive messages there)
