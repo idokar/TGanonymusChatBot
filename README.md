@@ -53,3 +53,7 @@ The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), 
 * `/promote` and `/demote` - **creator only command**. to promote and demote users and admins.
 
 **for more information use `/help` (as admin) in the bot.**
+
+## todo
+- [ ]  add bot factory to create instances of this bot.
+- [ ]  add admins group (to receive messages there)
