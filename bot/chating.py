@@ -1,23 +1,22 @@
-import logging
-
 from pyrogram.errors import PeerIdInvalid, UserIsBlocked
 from pyrogram.types import InputMediaAnimation, InputMediaAudio, \
     InputMediaDocument, InputMediaVideo, InputMediaPhoto
 
-from .helpers import *
-_log = logging.getLogger(__name__)
+from bot.helpers import *
+
 
 @db_session
 async def forward_to_admins(m: Message, user: User, message, **kwargs):
     for k, v in get_admins().items():
         try:
             msg = await m.forward(k)
+            print(msg.forward_from)
             if not msg.forward_from or m.sticker:
-                await msg.reply(format_message(MSG[v.language][message], user, **kwargs),
+                await msg.reply(format_message(message, user, lang=v.language, **kwargs),
                                 quote=True)
             else:
                 if m.edit_date:
-                    await msg.reply(MSG[v.language]["edited"], quote=True)
+                    await msg.reply(MSG("edited", v.language), quote=True)
         except PeerIdInvalid:
             pass
 
@@ -54,10 +53,10 @@ async def edit_message(m: Message):
 async def start(c, m):
     user = add_user(tg_user=m.from_user)
     if user.is_admin:
-        return await m.reply(format_message(MSG[user.language]['admin_welcome'], user))
+        return await m.reply(format_message('admin_welcome', user, lang=user.language))
     elif await user.member(c):
         if str(user.uid) in data['ban']:
-            return await m.reply(MSG[user.language]['ban_msg'], quote=True)
+            return await m.reply(MSG('ban_msg', user.language), quote=True)
         if data['start_msg']:
             await m.reply(format_message(data['start_msg'], user).replace('{{', '{').replace('}}', '}'))
         await forward_to_admins(m, user, 'reply')
@@ -73,9 +72,9 @@ async def get_messages(c, m):
     if not await user.member(c):
         return
     if str(user.uid) in data['ban']:
-        return await m.reply(MSG[user.language]['ban_msg'], quote=True)
+        return await m.reply(MSG('ban_msg', user.language), quote=True)
     elif m.forward_date:
-        return await m.reply(MSG[user.language]['forwarded'])
+        return await m.reply(MSG('forwarded', user.language))
     await forward_to_admins(m, user, 'edited' if m.edit_date else 'reply')
 
 
@@ -89,7 +88,7 @@ async def return_message(c, m):
         if m.edit_date:
             await edit_message(m)
         else:
-            message = m.forward(uid, as_copy=True)
+            message = m.copy(uid)
             messages[m.date] = await message
         with db_session:
             for k, v in get_admins().items():
@@ -97,18 +96,16 @@ async def return_message(c, m):
                     try:
                         await c.send_message(
                             k,
-                            format_message(MSG[v.language]['admin_ans'],
+                            format_message('admin_ans',
                                            get_user(uid),
+                                           lang=v.language,
                                            admin=admin.link(),
-                                           msg=m.text or MSG[v.language]['pic'],
+                                           msg=m.text or MSG('pic', v.language),
                                            action='edit his message' if m.edit_date else 'reply'
                                            ))
                     except PeerIdInvalid:
                         pass
     except UserIsBlocked:
-        m.reply(MSG[admin.language]['blocked'], quote=True)
+        m.reply(MSG('blocked', admin.language), quote=True)
         with db_session:
             delete(u for u in User if u.uid == uid)
-
-
-_log.info(f'load plugin {__name__} successfully')

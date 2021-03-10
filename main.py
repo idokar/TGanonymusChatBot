@@ -1,16 +1,11 @@
-from os import sep, mkdir
-
-from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from bot.helpers import *
 
 
 # set scheduler #
 scheduler = BackgroundScheduler()
-
-# Set working directory to store the data #
-mkdir('Data') if not path.isdir('Data') else None
 
 # Initial Client #
 bot = Client("MySandBox")
@@ -30,10 +25,6 @@ if path.isfile(f'{DATA_FILE}_data.json'):
         data = json.load(f, parse_int=int)
 else:
     data = {'start_msg': '', 'group': None, 'non_participant': '', 'ban': list()}
-
-# Import translation and messages #
-with open(f'bot{sep}language.json', 'r', encoding='utf8') as f:
-    MSG = json.load(f, parse_int=int)
 
 
 @bot.on_disconnect()

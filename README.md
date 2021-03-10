@@ -6,7 +6,7 @@ This robot's purpose is to create a chat between an admin or several admins (whi
 
 The robot can function as a mail box so users from all over the world send messages to the bot and are received in one place,
 The users don't have the ability to see other user's messages, although the admin can.
-The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), [ponyorm](https://github.com/ponyorm) and [apscheduler](https://github.com/agronholm/apscheduler).
+The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), [ponyorm](https://github.com/ponyorm), [apscheduler](https://github.com/agronholm/apscheduler) and [plate](https://github.com/delivrance/plate).
 
 ### usage examples
 
@@ -57,4 +57,3 @@ The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), 
 ## todo
 - [ ]  add bot factory to create instances of this bot.
 - [ ]  add admins group (to receive messages there)
-- [ ]  use Plate for translations (https://github.com/delivrance/plate)

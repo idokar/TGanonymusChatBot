@@ -1,9 +1,9 @@
-from .helpers import *
+from bot.helpers import *
+from pyrogram import StopPropagation
 from main import CREATOR
 
 
-@Client.on_message(filters.command(
-    MSG['commands']['demote'] + MSG['commands']['promote']) & filters.chat(CREATOR))
+@Client.on_message(filters.command(COMMANDS['demote'] + COMMANDS['promote']) & filters.chat(CREATOR))
 async def set_admins(_, m: Message):
     """
     function to promote / demote admins in the bot. (only for the CREATOR)
@@ -22,11 +22,10 @@ async def set_admins(_, m: Message):
         if not uid:
             return
 
-    state = True if m.command[0] in MSG['commands']['promote'] else False
+    state = True if m.command[0] in COMMANDS['promote'] else False
     with db_session:
         get_user(uid).is_admin = state
-    return await m.reply(format_message(
-        MSG[get_user(m.from_user.id).language]
-        ['success_add_admin' if state else 'success_remove_admin'],
-        get_user(uid)
-    ))
+    await m.reply(format_message('success_add_admin' if state else 'success_remove_admin',
+                  get_user(uid), lang=get_user(m.from_user.id).language
+                                 ))
+    raise StopPropagation()

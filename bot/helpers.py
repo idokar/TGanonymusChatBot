@@ -1,17 +1,25 @@
 import json
-from os import path
+from os import path, sep
 import sys
 from typing import Union, Dict
 from pony.orm import *
 from pyrogram import filters, Client
 from pyrogram.errors import RPCError
 from pyrogram.types import Message
-from main import DATA_FILE, data, MSG
+from main import DATA_FILE, data
+from plate import Plate
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 messages = dict()
 DB = Database()
+MSG = Plate(f'.{sep}Data{sep}language')
+COMMANDS = {c: [MSG(c, i) for i in MSG.locales.keys()] for c in [
+    "block", "unblock",
+    "promote", "demote",
+    "group", "remove_group",
+    "welcome", "settings"
+]}
 
 
 # ==================================== DB ====================================
@@ -58,7 +66,7 @@ def get_user(user_id: int) -> Union[User, None]:
 
 
 @db_session
-def add_user(uid=None, tg_user=None, is_admin=False, language='en',
+def add_user(uid=None, tg_user=None, is_admin=False, language='en_US',
              first_name='', last_name='', username='') -> User:
     """
     function to add a new user to the data base.
@@ -152,6 +160,17 @@ def format_message(message: str, user: User, **kwargs) -> str:
     :param kwargs: more optional arguments to the message
     :return: the formatted message.
     """
+    if 'lang' in kwargs.keys():
+        return MSG(
+            message,
+            uid=user.uid,
+            first=user.first_name or '',
+            last=user.last_name or '',
+            username=user.username or '',
+            link=user.link(),
+            name=user.name,
+            **kwargs
+        )
     return message.format(
         uid=user.uid,
         first=user.first_name or '',
@@ -175,7 +194,7 @@ def get_id(message: Message) -> Union[int, None]:
     if isinstance(uid, str) and uid.isdigit():
         uid = int(uid)
     if not isinstance(uid, int):
-        message.reply(MSG[add_user(tg_user=message.from_user).language]['user_not_found'])
+        message.reply(MSG('user_not_found', add_user(tg_user=message.from_user).language))
         return
     return uid
 

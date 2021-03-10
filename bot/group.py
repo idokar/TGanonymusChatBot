@@ -1,8 +1,8 @@
 import time
-from .helpers import *
+from bot.helpers import *
 
 
-@Client.on_message(is_admin & ~filters.private & filters.command(MSG['commands']['group']))
+@Client.on_message(is_admin & ~filters.private & filters.command(COMMANDS['group']))
 def set_group(_, m: Message):
     """
     function to limit the bot to a group, send messages on the group.
@@ -15,14 +15,14 @@ def set_group(_, m: Message):
         if me.can_delete_messages and me.can_restrict_members:
             data['group'] = m.chat.id
             save_data()
-            return m.reply(MSG[get_user(m.from_user.id).language]['group_added'].format(title=m.chat.title))
-        m.reply(MSG[add_user(tg_user=m.from_user).language]['bot_promote'])
+            return m.reply(MSG('group_added', get_user(m.from_user.id).language, title=m.chat.title))
+        m.reply(MSG('bot_promote', add_user(tg_user=m.from_user).language))
     data['group'] = None
     save_data()
     m.chat.leave()
 
 
-@Client.on_message((is_admin & ~filters.private & filters.command(MSG['commands']['remove_group'])) |
+@Client.on_message((is_admin & ~filters.private & filters.command(COMMANDS['remove_group'])) |
                    filters.left_chat_member)
 def unset_group(c, m: Message):
     """
@@ -36,8 +36,7 @@ def unset_group(c, m: Message):
         data['group'] = None
         c.send_message(
             m.from_user.id,
-            MSG[get_user(m.from_user.id).language]['group_removed'].format(
-                title=m.chat.title))
+            MSG('group_removed', get_user(m.from_user.id).language, title=m.chat.title))
     save_data()
 
 
@@ -55,7 +54,7 @@ def joined_group(_, m: Message):
             if me.status in ["creator", "administrator"]:
                 if me.can_delete_messages and me.can_restrict_members:
                     return
-            m.reply(MSG[add_user(tg_user=m.from_user).language]['bot_promote'])
+            m.reply(MSG('bot_promote', add_user(tg_user=m.from_user).language))
             time.sleep(300)
     me = m.chat.get_member('me')
     if me.status in ["creator", "administrator"]:

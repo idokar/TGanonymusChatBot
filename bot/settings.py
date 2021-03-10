@@ -5,15 +5,13 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQ
 from bot.helpers import *
 from main import CREATOR
 
-languages = {'en': '🇺🇸 English (אנגלית)', 'he': '🇮🇱 Hebrew (עברית)'}
-
 
 def block_list(lang: str) -> str:
     """
     generate the blocked users list.
     :param lang: user language like in the keys of 'languages'
     """
-    msg = MSG[lang]['block_list']
+    msg = MSG('block_list', lang)
     for i in data['ban']:
         user = get_user(int(i))
         msg += format_message('{link} ({uid})\n', user) if user else i
@@ -27,7 +25,7 @@ def admin_list(lang: str) -> str:
     generate the admins list.
     :param lang: user language like in the keys of 'languages'
     """
-    msg = MSG[lang]['admin_list']
+    msg = MSG('admin_list', lang)
     for admin in get_admins().values():
         if admin.uid == CREATOR:
             msg += format_message('🎖 {link} ({uid})\n', admin)
@@ -42,13 +40,13 @@ def get_settings_keyboard(lang: str) -> InlineKeyboardMarkup:
     :param lang: user language like in the keys of 'languages'
     """
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton(MSG[lang]['button_lang'], callback_data='lang')],
+        [InlineKeyboardButton(MSG('button_lang', lang), callback_data='lang')],
         [
-            InlineKeyboardButton(MSG[lang]['button_remove_welcome'], callback_data='explain_welcome'),
+            InlineKeyboardButton(MSG('button_remove_welcome', lang), callback_data='explain_welcome'),
             InlineKeyboardButton('✅' if data['start_msg'] else '☑️', callback_data='on_welcome'),
         ],
-        [InlineKeyboardButton(MSG[lang]['button_block_list'], callback_data='block_list')],
-        [InlineKeyboardButton(MSG[lang]['button_admin_list'], callback_data='admin_list')]
+        [InlineKeyboardButton(MSG('button_block_list', lang), callback_data='block_list')],
+        [InlineKeyboardButton(MSG('button_admin_list', lang), callback_data='admin_list')]
     ])
 
 
@@ -58,15 +56,14 @@ def get_admin_help_keyboard(lang: str) -> InlineKeyboardMarkup:
     :param lang: user language like in the keys of 'languages'
     """
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton(MSG[lang]['button_block'], 'block'),
-         InlineKeyboardButton(MSG[lang]['button_admins'], 'admins')],
-        [InlineKeyboardButton(MSG[lang]['button_welcome'], 'welcome'),
-         InlineKeyboardButton(MSG[lang]['button_group'], 'group')]
+        [InlineKeyboardButton(MSG('button_block', lang), 'block'),
+         InlineKeyboardButton(MSG('button_admins', lang), 'admins')],
+        [InlineKeyboardButton(MSG('button_welcome', lang), 'welcome'),
+         InlineKeyboardButton(MSG('button_group', lang), 'group')]
     ])
 
 
-@Client.on_message(is_admin & filters.private & filters.text &
-                   filters.command(MSG['commands']['welcome']))
+@Client.on_message(is_admin & filters.private & filters.text & filters.command(COMMANDS['welcome']))
 def start_msg(_, m: Message):
     """
     function to set or update the start message.
@@ -81,10 +78,10 @@ def start_msg(_, m: Message):
     try:
         m.reply(format_message(text, get_user(m.from_user.id))).delete()
     except RPCError:
-        return m.reply(MSG[get_user(m.from_user.id).language]['format_err'])
+        return m.reply(MSG('format_err', get_user(m.from_user.id).language))
     data['start_msg'] = text
     save_data()
-    m.reply(MSG[get_user(m.from_user.id).language]['success_welcome'], quote=True)
+    m.reply(MSG('success_welcome', get_user(m.from_user.id).language), quote=True)
 
 
 @Client.on_message(filters.command('help') & filters.private)
@@ -95,23 +92,22 @@ def info_and_help(_, m: Message):
     user = get_user(m.from_user.id)
     lang = user.language
     if user.is_admin:
-        return m.reply(MSG[lang]['admins_help'], disable_web_page_preview=True,
+        return m.reply(MSG('admins_help', lang), disable_web_page_preview=True,
                        reply_markup=get_admin_help_keyboard(lang))
     else:
         return m.reply(
-            MSG[lang]['users_help'], disable_web_page_preview=True,
+            MSG('users_help', lang), disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton(MSG[lang]['button_lang'], 'help_lang')]]
+                [[InlineKeyboardButton(MSG('button_lang', lang), 'help_lang')]]
             ))
 
 
-@Client.on_message(filters.command(MSG['commands']['settings']) & is_admin
-                   & filters.private)
+@Client.on_message(filters.command(COMMANDS['settings']) & is_admin & filters.private)
 def settings_keyboard(_, m: Message):
     """
     send the settings keyboard on a command
     """
-    m.reply(MSG[get_user(m.from_user.id).language]['settings'],
+    m.reply(MSG('settings_msg', get_user(m.from_user.id).language),
             reply_markup=get_settings_keyboard(get_user(m.from_user.id).language))
 
 
@@ -125,28 +121,28 @@ def refresh_admin_keyboards(_, query: CallbackQuery):
     """
     lang = get_user(query.from_user.id).language
     keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(text=MSG[lang]['button_back'], callback_data='back')]])
+        [[InlineKeyboardButton(text=MSG('button_back', lang), callback_data='back')]])
     if query.data == 'lang':
-        for k, v in languages.items():
+        for k in MSG.locales.keys():
             keyboard.inline_keyboard.append(
-                [InlineKeyboardButton(text=v, callback_data=k)])
-        return query.message.edit(MSG[lang]['chang_lang'], reply_markup=keyboard)
+                [InlineKeyboardButton(text=MSG(k), callback_data=k)])
+        return query.message.edit(MSG('chang_lang', lang), reply_markup=keyboard)
     elif query.data == 'explain_welcome':
-        return query.answer(MSG[lang]['explain_welcome'], show_alert=True, cache_time=60)
+        return query.answer(MSG('explain_welcome', lang), show_alert=True, cache_time=60)
     elif query.data == 'on_welcome':
         if data['start_msg']:
             data['start_msg'] = ''
             save_data()
-            query.answer(MSG[lang]['welcome_removed'], show_alert=True)
+            query.answer(MSG('welcome_removed', lang), show_alert=True)
         return query.message.edit_reply_markup(get_settings_keyboard(lang))
     elif query.data == 'admin_list':
         return query.message.edit(admin_list(lang), reply_markup=keyboard)
     elif query.data == 'block_list':
         return query.message.edit(block_list(lang), reply_markup=keyboard)
     elif query.data == 'back':
-        return query.message.edit(MSG[lang]['settings'], reply_markup=get_settings_keyboard(lang))
+        return query.message.edit(MSG('settings_msg', lang), reply_markup=get_settings_keyboard(lang))
     elif query.data in ['block', 'admins', 'welcome', 'group']:
-        return query.message.edit(MSG[lang][f'help_{query.data}'], disable_web_page_preview=True,
+        return query.message.edit(MSG(f'help_{query.data}', lang), disable_web_page_preview=True,
                                   reply_markup=get_admin_help_keyboard(lang))
 
 
@@ -159,20 +155,21 @@ def change_lang_keyboard(_, query: CallbackQuery):
     :type query: pyrogram.types.CallbackQuery
     """
     if query.data == 'help_lang':
-        keyboard = [[InlineKeyboardButton(text=v, callback_data=k)] for k, v in languages.items()]
+        keyboard = [[InlineKeyboardButton(text=MSG(lang), callback_data=lang)] for lang in MSG.locales.keys()]
         return query.message.edit(
-            MSG[get_user(query.from_user.id).language]['chang_lang'],
+            MSG('chang_lang', get_user(query.from_user.id).language),
             reply_markup=InlineKeyboardMarkup(keyboard))
-    elif query.data in languages.keys():
+    elif query.data in MSG.locales.keys():
+        print(query.data)
         with db_session:
             get_user(query.from_user.id).language = query.data
         if get_user(query.from_user.id).is_admin:
             return query.edit_message_text(
-                MSG[query.data]['settings'],
+                MSG('settings_msg', query.data),
                 reply_markup=get_settings_keyboard(query.data))
         else:
             return query.edit_message_text(
-                MSG[query.data]['users_help'], disable_web_page_preview=True,
+                MSG('users_help', query.data), disable_web_page_preview=True,
                 reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton(MSG[query.data]['button_lang'], 'help_lang')]]
+                    [[InlineKeyboardButton(MSG('button_lang', query.data), 'help_lang')]]
                 ))
