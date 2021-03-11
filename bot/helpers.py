@@ -200,12 +200,8 @@ def get_id(message: Message) -> Union[int, None]:
 
 
 def _is_admin(_, __, m: Message) -> bool:
-    if not m.from_user:
-        return False
-    return bool(m.from_user.id in get_admins().keys())
+    return bool(m.from_user and m.from_user.id in get_admins().keys())
 
 
 is_admin = filters.create(_is_admin)
-"""
-filter for admin messages
-"""
+"""filter for admin messages."""

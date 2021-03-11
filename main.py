@@ -1,27 +1,34 @@
 import logging
+import configparser
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from bot.helpers import *
 
-
-# set scheduler #
-scheduler = BackgroundScheduler()
-
-# Initial Client #
-bot = Client("MySandBox")
-
 # Creat logger #
-logger = logging.getLogger('main')
+_logger = logging.getLogger('main')
 _format = '%(asctime)s - %(levelname)s - %(name)s : %(message)s'
 logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
 
+# Config #
+_config = configparser.ConfigParser()
+_config.read('config.ini')
+_session = _config['init']['session_name']
+if _session == ':memory:':
+    _logger.error("The session_name can't be ':memory:'")
+    raise IOError("The session_name can't be ':memory:'")
+CREATOR = int(_config['init']['creator'])
+
+# set scheduler and Telegram client #
+_scheduler = BackgroundScheduler()
+bot = Client(_session)
+
+
 # Defining data files name depending the session name #
-CREATOR = None  # TODO: insert the creator ID
-DATA_FILE = f"Data{sep}{bot.session_name}"
+DATA_FILE = f"Data{sep}{_session}"
 
 # Import data #
 if path.isfile(f'{DATA_FILE}_data.json'):
-    with open(f'{DATA_FILE}_data.json', 'r') as f:
+    with open(f'{DATA_FILE}_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f, parse_int=int)
 else:
     data = {'start_msg': '', 'group': None, 'non_participant': '', 'ban': list()}
@@ -35,24 +42,24 @@ async def turning_off(c: Client):
     :param c: :pyrogram.Client: the disconnected client.
     """
     if c.is_initialized:
-        logger.critical(f'connection error on: {c.session_name} with token: {c.bot_token}')
+        _logger.critical(f'connection error on: {c.session_name} with token: {c.bot_token}')
         save_data()
         clean_cash()
-        scheduler.shutdown(wait=False)
+        _scheduler.shutdown(wait=False)
         exit(1)
 
 
-def run():
+def main():
     """
     run the bot
     """
     DB.bind(provider='sqlite', filename=f"{DATA_FILE}_DB.sqlite", create_db=True)
     DB.generate_mapping(create_tables=True)
     add_user(CREATOR, is_admin=True)
-    scheduler.add_job(clean_cash, trigger='interval', days=1)
-    scheduler.start()
+    _scheduler.add_job(clean_cash, trigger='interval', days=1)
+    _scheduler.start()
     bot.run()
 
 
 if __name__ == '__main__':
-    run()
+    main()

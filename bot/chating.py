@@ -10,7 +10,6 @@ async def forward_to_admins(m: Message, user: User, message, **kwargs):
     for k, v in get_admins().items():
         try:
             msg = await m.forward(k)
-            print(msg.forward_from)
             if not msg.forward_from or m.sticker:
                 await msg.reply(format_message(message, user, lang=v.language, **kwargs),
                                 quote=True)
