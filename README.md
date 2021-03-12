@@ -46,7 +46,7 @@ The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), 
 
 * `/start` - **admins and users command**. for admins its a permanent message and for users it is a editable using `/set welcome` command.
 * `/help` - **admins and users command**. for users it gives the ability to change language and get info about the bot. and for admins, it gives info about all the commands.  
-* `set welcome` - **admins only command**. allows to set a welcome message for the users.
+* `/set welcome` - **admins only command**. allows to set a welcome message for the users.
 * `/settings` - **admins only command**. allows to choose language, to remove the welcome message and to see the blocked and admins lists.
 * `/block` and `/unblock` - **admins only command**. to block and unlock users.
 * `/set group` and `/unset group` - **admins only command**. to limit the incoming messages from a curtain group only.
