@@ -32,7 +32,7 @@ The robot was created using [pyrogram + tgcrypto](https://github.com/pyrogram), 
 4. Enter to the [config.ini](https://github.com/idokar/TGanonymusChatBot/blob/master/config.ini) file and edit the empty fields:
     1. Create telegram app here: https://core.telegram.org/api/obtaining_api_id for getting `api_id` and `api_hash`
     2. [Create bot token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) using [BotFather](https://t.me/botfather)
-    3. Enter the `api_id`, `api_hash` and the `bot_token` to the file [`config.ini`](https://github.com/idokar/TGanonymusChatBot/blob/master/config.ini) (without using "" around the strings).
+    3. Enter the `api_id`, `api_hash` and the `bot_token` to the [`config.ini`](https://github.com/idokar/TGanonymusChatBot/blob/master/config.ini) file (without using "" around the strings).
     ##### Example
      ```
      api_id = 12345
