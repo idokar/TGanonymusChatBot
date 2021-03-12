@@ -1,15 +1,17 @@
 import time
+
 from bot.helpers import *
 
 
 @Client.on_message(is_admin & ~filters.private & filters.command(COMMANDS['group']))
 def set_group(_, m: Message):
     """
-    function to limit the bot to a group, send messages on the group.
+    handler function to limit the bot to a group.
+    only the group members will be allow to use the bot.
+    :param m: command message.
     """
     if data['group']:
         return m.chat.leave()
-
     if m.chat.get_member(m.from_user.id).status in ['creator', 'administrator']:
         me = m.chat.get_member('me')
         if me.can_delete_messages and me.can_restrict_members:
@@ -26,7 +28,10 @@ def set_group(_, m: Message):
                    filters.left_chat_member)
 def unset_group(c, m: Message):
     """
-    function to remove the group. don't send messages in the group.
+    handler function to unlimite the bot to a group.
+    all the users will be allow to use the bot.
+    :param c: reference to the Client.
+    :param m: command message.
     """
     if not data['group']:
         return
@@ -45,6 +50,7 @@ def joined_group(_, m: Message):
     """
     check permissions on joining the group. if someone added the bot,
     the bot will check it's permissions immediately and after 5 minutes if necessary.
+    :param m: join message.
     """
     if data['group'] and str(m.chat.id) != data['group']:
         m.chat.leave()

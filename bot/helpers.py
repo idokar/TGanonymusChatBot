@@ -2,28 +2,32 @@ import json
 from os import path, sep
 import sys
 from typing import Union, Dict
+
 from pony.orm import *
+from plate import Plate
 from pyrogram import filters, Client
 from pyrogram.errors import RPCError
 from pyrogram.types import Message
 from main import DATA_FILE, data
-from plate import Plate
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 messages = dict()
 DB = Database()
 MSG = Plate(f'.{sep}Data{sep}language')
-COMMANDS = {c: [MSG(c, i) for i in MSG.locales.keys()] for c in [
+COMMANDS = {c: [MSG(c, i) for i in MSG.locales.keys()] for c in (
     "block", "unblock",
     "promote", "demote",
     "group", "remove_group",
     "welcome", "settings"
-]}
+)}
 
 
 # ==================================== DB ====================================
 class User(DB.Entity):
+    """
+    User entity type to represent Telegram user
+    """
     uid = PrimaryKey(int)
     is_admin = Required(bool)
     language = Required(str)
@@ -33,6 +37,10 @@ class User(DB.Entity):
 
     @property
     def name(self) -> str:
+        """
+        full name of a user
+        :return: the user first and last name if exist.
+        """
         if self.first_name and self.last_name:
             return f'{self.first_name} {self.last_name}'
         elif self.first_name and not self.last_name:
@@ -40,6 +48,11 @@ class User(DB.Entity):
         return self.last_name or ''
 
     async def member(self, c: Client) -> bool:
+        """
+        check if a user is a group member.
+        :param c: reference to the Client.
+        :return: rather the user is member or not.
+        """
         if data['group'] is None:
             return True
         try:
@@ -48,8 +61,14 @@ class User(DB.Entity):
         except RPCError:
             return False
 
-    def link(self) -> str:
-        return f'[{self.name if self.name else self.uid}](tg://user?id={self.uid})'
+    def link(self, parse_mode: str = 'markdown') -> str:
+        """
+        function to get a link to the user
+        :return: markdown hyper link to the user
+        """
+        if parse_mode == 'markdown':
+            return f'[{self.name if self.name else self.uid}](tg://user?id={self.uid})'
+        return f'<a href="tg://user?id={self.uid}">{self.name if self.name else self.uid}</a>'
 
 
 @db_session
@@ -75,11 +94,11 @@ def add_user(uid=None, tg_user=None, is_admin=False, language='en_US',
         Required uid or message
     :param uid: the user telegram ID.
     :type uid: int
-    :param tg_user: a telegram user type as represented in pyrogram.
-    :type tg_user: pyrogram.User
+    :param tg_user: a Telegram user type as represented in pyrogram.
+    :type tg_user: pyrogram.types.User
         Optional arguments:
     :param is_admin: boolean value if the user is admin
-    :param language: the user language. one of: ('en', 'he')
+    :param language: the user language. one of: ('en_US', 'he_IL')
     :arg first_name: user first name as string
     :arg last_name: user last name as string
     :arg username: the telegram user username
@@ -131,7 +150,7 @@ def save_data():
 def clean_cash(message_date=None):
     """
     function to clear all the messages that sent from the admins or a specific one.
-    :param message_date: the pyrogram.Message.date (a non zero number)
+    :param message_date: the pyrogram.types.Message.date (a non zero number)
     """
     global messages
     if message_date:
@@ -155,12 +174,13 @@ def format_message(message: str, user: User, **kwargs) -> str:
         {link} (a text hidden link to the user),
         {name} (the full name of the user)
 
-    :param message: a message to format
+    :param message: a message to format or key of message if 'lang' in kwargs
     :param user: User as represents in the data base
     :param kwargs: more optional arguments to the message
     :return: the formatted message.
     """
     if 'lang' in kwargs.keys():
+        kwargs.pop('lang')
         return MSG(
             message,
             uid=user.uid,
@@ -185,7 +205,7 @@ def format_message(message: str, user: User, **kwargs) -> str:
 def get_id(message: Message) -> Union[int, None]:
     """
     function to cathe the use ID from the given message.
-    :return the user ID or None in case of filer
+    :return the user ID or None in case of filer.
     """
     if message.reply_to_message.forward_from:
         uid = message.reply_to_message.forward_from.id

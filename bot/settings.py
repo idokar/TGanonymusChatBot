@@ -66,7 +66,9 @@ def get_admin_help_keyboard(lang: str) -> InlineKeyboardMarkup:
 @Client.on_message(is_admin & filters.private & filters.text & filters.command(COMMANDS['welcome']))
 def start_msg(_, m: Message):
     """
-    function to set or update the start message.
+    handler function to set or update the start message.
+    [read more about format text](https://core.telegram.org/bots/api#formatting-options)
+    :param m: the command message.
     """
     text = m.text[len(m.command[0]) + 2:].replace('{', '{{').replace('}', '}}')
     text = text.replace('$id', '{uid}').replace('$first_name', "{first}")
@@ -87,7 +89,8 @@ def start_msg(_, m: Message):
 @Client.on_message(filters.command('help') & filters.private)
 def info_and_help(_, m: Message):
     """
-    send the start message.
+    send the help message.
+    :param m: the `/help` command message.
     """
     user = get_user(m.from_user.id)
     lang = user.language
@@ -106,6 +109,7 @@ def info_and_help(_, m: Message):
 def settings_keyboard(_, m: Message):
     """
     send the settings keyboard on a command
+    :param m: the command message.
     """
     m.reply(MSG('settings_msg', get_user(m.from_user.id).language),
             reply_markup=get_settings_keyboard(get_user(m.from_user.id).language))
@@ -160,7 +164,6 @@ def change_lang_keyboard(_, query: CallbackQuery):
             MSG('chang_lang', get_user(query.from_user.id).language),
             reply_markup=InlineKeyboardMarkup(keyboard))
     elif query.data in MSG.locales.keys():
-        print(query.data)
         with db_session:
             get_user(query.from_user.id).language = query.data
         if get_user(query.from_user.id).is_admin:

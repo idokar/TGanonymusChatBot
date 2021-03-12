@@ -1,7 +1,7 @@
 import logging
 import configparser
-from apscheduler.schedulers.background import BackgroundScheduler
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from bot.helpers import *
 
 # Creat logger #
@@ -15,13 +15,12 @@ _config.read('config.ini')
 _session = _config['init']['session_name']
 if _session == ':memory:':
     _logger.error("The session_name can't be ':memory:'")
-    raise IOError("The session_name can't be ':memory:'")
+    raise ValueError("The session_name can't be ':memory:'")
 CREATOR = int(_config['init']['creator'])
 
 # set scheduler and Telegram client #
 _scheduler = BackgroundScheduler()
 bot = Client(_session)
-
 
 # Defining data files name depending the session name #
 DATA_FILE = f"Data{sep}{_session}"
@@ -49,11 +48,11 @@ async def turning_off(c: Client):
         exit(1)
 
 
-def main():
+def main(db_type: str, **db_kwargs):
     """
-    run the bot
+    setup and run the bot
     """
-    DB.bind(provider='sqlite', filename=f"{DATA_FILE}_DB.sqlite", create_db=True)
+    DB.bind(provider=db_type, **db_kwargs)
     DB.generate_mapping(create_tables=True)
     add_user(CREATOR, is_admin=True)
     _scheduler.add_job(clean_cash, trigger='interval', days=1)
@@ -62,4 +61,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(db_type='sqlite', filename=f"{DATA_FILE}_DB.sqlite")

@@ -1,16 +1,19 @@
+import logging
+
 from pyrogram.errors import PeerIdInvalid, UserIsBlocked
 from bot.helpers import *
-import logging
+
+_logger = logging.getLogger(__name__)
 
 
 @db_session
 def report_to_admins(admin: User, user: User, c: Client, message: str):
     """
-    function to report the admins that admin reply to a user.
-    :param admin: the admin that reply the user.
-    :param user: the user the admin replied to.
+    function to report the admins that admin blocked / released user.
+    :param admin: the admin that blocked / released the user.
+    :param user: the user that was blocked / released.
     :param c: pyrogram.Client to send the message.
-    :param message: the message type to send to the admins
+    :param message: the key of which message to send to the admins.
     """
     for k, v in get_admins().items():
         if k != admin.uid:
@@ -18,7 +21,7 @@ def report_to_admins(admin: User, user: User, c: Client, message: str):
                 c.send_message(k, format_message(message, user, admin=admin.link(),
                                                  lang=v.language))
             except PeerIdInvalid:
-                logging.debug(f"Wasn't allow to send message to {v.name}")
+                _logger.error(f"Wasn't allow to send message to {v.name}")
 
 
 @Client.on_message(is_admin & filters.reply & filters.private &
@@ -30,7 +33,7 @@ def block(c: Client, m: Message):
     """
     user = get_id(m)
     if not user:
-        return
+        return _logger.debug("couldn't find user ID in the message")
     user = get_user(user)
     if user.is_admin:
         return
@@ -53,7 +56,7 @@ def unblock(c: Client, m: Message):
     """
     user = get_id(m)
     if not user:
-        return
+        return _logger.debug("couldn't find user ID in the message")
     user = get_user(user)
     if user.is_admin:
         return
