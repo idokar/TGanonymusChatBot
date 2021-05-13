@@ -61,11 +61,11 @@ def main(db_type: str, **db_kwargs):
     """
     DB.bind(provider=db_type, **db_kwargs)
     DB.generate_mapping(create_tables=True)
-    add_user(CREATOR, is_admin=True)
+    add_user(CREATOR, admin=True)
     _scheduler.add_job(clean_cash, trigger='interval', days=1)
     _scheduler.start()
     bot.run()
 
 
 if __name__ == '__main__':
-    main(db_type='sqlite', filename=f"{DATA_FILE}_DB.sqlite")
+    main(db_type='sqlite', filename=f"{DATA_FILE}_DB.sqlite", create_db=True)

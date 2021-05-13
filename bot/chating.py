@@ -121,13 +121,14 @@ async def return_message(c, m):
                     try:
                         await c.send_message(
                             k,
-                            format_message('admin_ans',
-                                           get_user(uid),
-                                           lang=v.language,
-                                           admin=admin.link(),
-                                           msg=m.text or MSG('pic', v.language),
-                                           action='edit his message' if m.edit_date else 'reply'
-                                           ))
+                            format_message(
+                                'admin_edit_ans' if m.edit_date else 'admin_ans',
+                                get_user(uid),
+                                lang=v.language,
+                                admin=admin.link(),
+                                msg=m.text or MSG('pic', v.language)
+                            ))
+
                     except PeerIdInvalid:
                         _logger.error(f"Wasn't allow to send message to {v.name}")
     except UserIsBlocked:

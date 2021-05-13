@@ -1,3 +1,4 @@
+import asyncio
 import json
 from os import path, sep
 import sys
@@ -85,7 +86,7 @@ def get_user(user_id: int) -> Union[User, None]:
 
 
 @db_session
-def add_user(uid=None, tg_user=None, is_admin=False, language='en_US',
+def add_user(uid=None, tg_user=None, admin=False, language='en_US',
              first_name='', last_name='', username='') -> User:
     """
     function to add a new user to the data base.
@@ -97,7 +98,7 @@ def add_user(uid=None, tg_user=None, is_admin=False, language='en_US',
     :param tg_user: a Telegram user type as represented in pyrogram.
     :type tg_user: pyrogram.types.User
         Optional arguments:
-    :param is_admin: boolean value if the user is admin
+    :param admin: boolean value if the user is admin
     :param language: the user language. one of: ('en_US', 'he_IL')
     :arg first_name: user first name as string
     :arg last_name: user last name as string
@@ -108,7 +109,7 @@ def add_user(uid=None, tg_user=None, is_admin=False, language='en_US',
         if not get_user(tg_user.id):
             return User(
                 uid=tg_user.id,
-                is_admin=is_admin,
+                is_admin=admin,
                 language=language,
                 first_name=tg_user.first_name or '',
                 last_name=tg_user.last_name or '',
@@ -121,7 +122,7 @@ def add_user(uid=None, tg_user=None, is_admin=False, language='en_US',
     elif uid and not get_user(uid):
         return User(
             uid=uid,
-            is_admin=is_admin,
+            is_admin=admin,
             language=language,
             first_name=first_name,
             last_name=last_name,
@@ -180,9 +181,9 @@ def format_message(message: str, user: User, **kwargs) -> str:
     :return: the formatted message.
     """
     if 'lang' in kwargs.keys():
-        kwargs.pop('lang')
         return MSG(
             message,
+            kwargs.pop('lang'),
             uid=user.uid,
             first=user.first_name or '',
             last=user.last_name or '',
@@ -214,7 +215,10 @@ def get_id(message: Message) -> Union[int, None]:
     if isinstance(uid, str) and uid.isdigit():
         uid = int(uid)
     if not isinstance(uid, int):
-        message.reply(MSG('user_not_found', add_user(tg_user=message.from_user).language))
+        asyncio.get_event_loop().run_until_complete(
+            message.reply(MSG('user_not_found',
+                              add_user(tg_user=message.from_user).language
+                              )))
         return
     return uid
 
