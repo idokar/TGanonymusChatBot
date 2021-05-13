@@ -29,6 +29,10 @@ async def forward_to_admins(m: Message, user: User, message, **kwargs):
                     await msg.reply(MSG("edited", v.language), quote=True)
         except PeerIdInvalid:
             _logger.error(f"Wasn't allow to send message to {v.name}")
+        except UserIsBlocked:
+            _logger.error(f"The Admin {v.name} blocked the bot")
+            delete(u for u in User if u.uid == v.uid)
+            commit()
 
 
 async def edit_message(m: Message):
