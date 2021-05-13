@@ -1,5 +1,6 @@
 import logging
 import configparser
+import re
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from bot.helpers import *
@@ -13,9 +14,15 @@ logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
 _config = configparser.ConfigParser()
 _config.read('config.ini')
 _session = _config['init']['session_name']
-if _session == ':memory:':
-    _logger.error("The session_name can't be ':memory:'")
-    raise ValueError("The session_name can't be ':memory:'")
+if _session or _session == ':memory:':
+    msg = "The session_name can't be ':memory:' or empty"
+    _logger.error(msg)
+    raise ValueError(msg)
+elif re.search(r'[\\/:*?"<>\\|~&#%+{}]', _session) or len(_session) > 244:
+    msg = r'The session_name can not contain: \ / : * ? " < > | ~ & # % + { }'
+    _logger.error(msg)
+    raise NameError(msg)
+
 CREATOR = int(_config['init']['creator'])
 
 # set scheduler and Telegram client #
