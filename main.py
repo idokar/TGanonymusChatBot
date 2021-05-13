@@ -14,7 +14,7 @@ logging.basicConfig(format=_format, filename=f'Data{sep}bot.log')
 _config = configparser.ConfigParser()
 _config.read('config.ini')
 _session = _config['init']['session_name']
-if _session or _session == ':memory:':
+if not _session or _session == ':memory:':
     msg = "The session_name can't be ':memory:' or empty"
     _logger.error(msg)
     raise ValueError(msg)
