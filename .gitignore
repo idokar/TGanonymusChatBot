@@ -1,1 +1,4 @@
 /venv/
+/*.session
+/Data/bot.log
+/Data/*_data.json
