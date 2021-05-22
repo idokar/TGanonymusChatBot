@@ -1,6 +1,7 @@
 import asyncio
 import json
-from os import path, sep
+import logging
+import os
 import sys
 from typing import Union, Dict
 
@@ -11,11 +12,12 @@ from pyrogram.errors import RPCError
 from pyrogram.types import Message
 from main import DATA_FILE, data
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+__logger = logging.getLogger(__name__)
 
 messages = dict()
 DB = Database()
-MSG = Plate(f'.{sep}Data{sep}language')
+MSG = Plate(f'.{os.sep}Data{os.sep}language')
 COMMANDS = {c: [MSG(c, i) for i in MSG.locales.keys()] for c in (
     "block", "unblock",
     "promote", "demote",
@@ -68,8 +70,8 @@ class User(DB.Entity):
         :return: markdown hyper link to the user
         """
         if parse_mode == 'markdown':
-            return f'[{self.name if self.name else self.uid}](tg://user?id={self.uid})'
-        return f'<a href="tg://user?id={self.uid}">{self.name if self.name else self.uid}</a>'
+            return f'[{self.name or self.uid}](tg://user?id={self.uid})'
+        return f'<a href="tg://user?id={self.uid}">{self.name or self.uid}</a>'
 
 
 @db_session
@@ -82,7 +84,7 @@ def get_user(user_id: int) -> Union[User, None]:
     try:
         return User[user_id]
     except ObjectNotFound:
-        return
+        return __logger.debug(f'the ID {user_id} is not found')
 
 
 @db_session
@@ -97,6 +99,7 @@ def add_user(uid=None, tg_user=None, admin=False, language='en_US',
     :type uid: int
     :param tg_user: a Telegram user type as represented in pyrogram.
     :type tg_user: pyrogram.types.User
+
         Optional arguments:
     :param admin: boolean value if the user is admin
     :param language: the user language. one of: ('en_US', 'he_IL')
@@ -142,15 +145,18 @@ def get_admins() -> Dict[int, User]:
 
 def save_data():
     """
-    save the dada json that contains the welcome message, group and blocked list.
+    save the dada json that contains the welcome message, group and blocked
+    list.
     """
     with open(f'{DATA_FILE}_data.json', "w", buffering=1) as file:
         json.dump(data, file, indent=4)
+    __logger.info('the data was saved')
 
 
 def clean_cash(message_date=None):
     """
-    function to clear all the messages that sent from the admins or a specific one.
+    function to clear all the messages that sent from the admins or a
+    specific one.
     :param message_date: the pyrogram.types.Message.date (a non zero number)
     """
     global messages
@@ -161,6 +167,7 @@ def clean_cash(message_date=None):
     else:
         del messages
         messages = dict()
+        __logger.info('All the messages was cleaning')
 
 
 # ============================ pyrogram functions ============================
@@ -215,10 +222,10 @@ def get_id(message: Message) -> Union[int, None]:
     if isinstance(uid, str) and uid.isdigit():
         uid = int(uid)
     if not isinstance(uid, int):
-        asyncio.get_event_loop().run_until_complete(
-            message.reply(MSG('user_not_found',
-                              add_user(tg_user=message.from_user).language
-                              )))
+        asyncio.get_event_loop().run_until_complete(message.reply(MSG(
+                'user_not_found',
+                add_user(tg_user=message.from_user).language
+        )))
         return
     return uid
 

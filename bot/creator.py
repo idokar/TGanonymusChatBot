@@ -1,5 +1,3 @@
-import logging
-
 from pyrogram import StopPropagation
 from bot.helpers import *
 from main import CREATOR
@@ -11,7 +9,9 @@ _logger = logging.getLogger(__name__)
                    filters.chat(CREATOR))
 async def set_admins(_, m: Message):
     """
-    handler function to promote / demote admins in the bot. (only for the CREATOR)
+    handler function to promote / demote admins in the bot.
+    (only for the CREATOR)
+    :param _: pyrogram Client, unused argument
     :param m: the message.
     """
     if not m.reply_to_message and len(m.command) == 2:
@@ -28,10 +28,11 @@ async def set_admins(_, m: Message):
         if not uid:
             return _logger.debug("couldn't find a user in the message")
 
-    state = True if m.command[0] in COMMANDS['promote'] else False
+    state = m.command[0] in COMMANDS['promote']
     with db_session:
         get_user(uid).is_admin = state
-    await m.reply(format_message('success_add_admin' if state else 'success_remove_admin',
-                                 get_user(uid), lang=get_user(m.from_user.id).language
-                                 ))
+    await m.reply(
+        format_message('success_add_admin' if state else 'success_remove_admin',
+                       get_user(uid), lang=get_user(m.from_user.id).language
+                       ))
     raise StopPropagation()

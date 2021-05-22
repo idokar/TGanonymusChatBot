@@ -1,6 +1,6 @@
-import logging
+import time
 
-from pyrogram.errors import PeerIdInvalid, UserIsBlocked
+from pyrogram.errors import PeerIdInvalid, UserIsBlocked, FloodWait
 from pyrogram.types import InputMediaAnimation, InputMediaAudio, \
     InputMediaDocument, InputMediaVideo, InputMediaPhoto
 
@@ -10,20 +10,22 @@ _logger = logging.getLogger(__name__)
 
 
 @db_session
-async def forward_to_admins(m: Message, user: User, message, **kwargs):
+async def forward_to_admins(m: Message, user: User, message):
     """
     function to forward the users messages to the admins.
     :param m: message to forward.
     :param user: the user who send the message.
     :param message: the key of which message to send to the admins.
-    :param kwargs: more arguments for the message.
     """
     for k, v in get_admins().items():
         try:
-            msg = await m.forward(k)
+            try:
+                msg = await m.forward(k)
+            except FloodWait as flood:
+                time.sleep(flood.x + 3)
+                msg = await m.forward(k)
             if not msg.forward_from or m.sticker:
-                await msg.reply(format_message(message, user, lang=v.language, **kwargs),
-                                quote=True)
+                await msg.reply(format_message(message, user, lang=v.language), True)
             else:
                 if m.edit_date:
                     await msg.reply(MSG("edited", v.language), quote=True)
@@ -48,16 +50,19 @@ async def edit_message(m: Message):
         caption = {'caption': m.caption + '\n'} if m.caption else {}
         if m.photo and m.photo != messages[m.date].photo:
             messages[m.date] = await messages[m.date].edit_media(
-                InputMediaPhoto(m.photo.file_id, m.photo.file_unique_id, **caption))
+                InputMediaPhoto(m.photo.file_id, m.photo.file_unique_id,
+                                **caption))
         elif m.video and m.video != messages[m.date].video:
             messages[m.date] = await messages[m.date].edit_media(
                 InputMediaVideo(m.video.file_id, m.video.file_unique_id, **caption))
         elif m.document and m.document != messages[m.date].document:
             messages[m.date] = await messages[m.date].edit_media(
-                InputMediaDocument(m.document.file_id, m.document.file_unique_id, **caption))
+                InputMediaDocument(m.document.file_id, m.document.file_unique_id,
+                                   **caption))
         elif m.animation and m.animation != messages[m.date].animation:
             messages[m.date] = await messages[m.date].edit_media(
-                InputMediaAnimation(m.animation.file_id, m.animation.file_unique_id, **caption))
+                InputMediaAnimation(m.animation.file_id,
+                                    m.animation.file_unique_id, **caption))
         elif m.audio and m.audio != messages[m.date].audio:
             messages[m.date] = await messages[m.date].edit_media(
                 InputMediaAudio(m.audio.file_id, m.audio.file_unique_id, **caption))
@@ -72,12 +77,14 @@ async def start(c, m):
     """
     user = add_user(tg_user=m.from_user)
     if user.is_admin:
-        return await m.reply(format_message('admin_welcome', user, lang=user.language))
+        return await m.reply(
+            format_message('admin_welcome', user, lang=user.language))
     elif await user.member(c):
         if str(user.uid) in data['ban']:
             return await m.reply(MSG('ban_msg', user.language), quote=True)
         if data['start_msg']:
-            await m.reply(format_message(data['start_msg'], user).replace('{{', '{').replace('}}', '}'))
+            await m.reply(format_message(
+                data['start_msg'], user).replace('{{', '{').replace('}}', '}'))
         await forward_to_admins(m, user, 'reply')
     else:
         if data['non_participant']:
@@ -110,9 +117,13 @@ async def return_message(c, m):
     :param m: the message.
     """
     uid = get_id(m)
-    if not uid or get_user(uid).is_admin:
-        return _logger.debug("not a valid ID or user is not an admin")
     admin = add_user(tg_user=m.from_user)
+    if not uid:
+        return _logger.debug("not a valid ID")
+    if get_user(uid) is None:
+        return await m.reply(MSG('blocked', admin.language), quote=True)
+    elif get_user(uid).is_admin:
+        return _logger.debug("user is admin")
     try:
         if m.edit_date:
             await edit_message(m)
@@ -133,9 +144,9 @@ async def return_message(c, m):
                                 msg=m.text or MSG('pic', v.language)
                             ))
 
-                    except PeerIdInvalid:
+                    except (PeerIdInvalid, UserIsBlocked):
                         _logger.error(f"Wasn't allow to send message to {v.name}")
     except UserIsBlocked:
-        m.reply(MSG('blocked', admin.language), quote=True)
+        await m.reply(MSG('blocked', admin.language), quote=True)
         with db_session:
             delete(u for u in User if u.uid == uid)
