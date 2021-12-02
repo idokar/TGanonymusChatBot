@@ -31,7 +31,7 @@ class User(DB.Entity):
     """
     User entity type to represent Telegram user
     """
-    uid = PrimaryKey(int)
+    uid = PrimaryKey(int, size=64)
     is_admin = Required(bool)
     language = Required(str)
     first_name = Optional(str)
