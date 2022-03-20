@@ -42,8 +42,8 @@ async def forward_to_admins(m: Message, user: User, message):
         except UserIsBlocked:
             _logger.error(f'The Admin {admin_name} blocked the bot')
             with db_session:
-                if v.uid != CREATOR:
-                    delete(u for u in User if u.uid == v.uid)
+                if k != CREATOR:
+                    delete(u for u in User if u.uid == k)
                     commit()
 
 
