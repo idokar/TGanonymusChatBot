@@ -1,6 +1,7 @@
 from re import sub
 
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.errors import MessageNotModified
 
 from bot.helpers import *
 from main import CREATOR
@@ -75,6 +76,13 @@ def start_msg(_, m: Message):
     [read more about format text](https://core.telegram.org/bots/api#formatting-options)
     :param _: pyrogram Client, unused argument
     :param m: the command message.
+        message arguments:
+            `$id` - replaced with the user Telegram id
+            `$first_name` - replaced with the user Telegram first name
+            `$last_name` - replaced with the user Telegram last name
+            `$username` - replaced with the user Telegram username
+            `$user` - replaced with a link to the user
+            `$name` - replaced with the full name of the user
     """
     text = m.text[len(m.command[0]) + 2:].replace('{', '{{').replace('}', '}}')
     text = text.replace('$id', '{uid}').replace('$first_name', "{first}")
@@ -138,32 +146,35 @@ def refresh_admin_keyboards(_, query: CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton(text=MSG('button_back', lang),
                                callback_data='back')]])
-    if query.data == 'lang':
-        for k in MSG.locales.keys():
-            keyboard.inline_keyboard.append(
-                [InlineKeyboardButton(text=MSG(k), callback_data=k)])
-        return query.message.edit(MSG('chang_lang', lang),
-                                  reply_markup=keyboard)
-    elif query.data == 'explain_welcome':
-        return query.answer(MSG('explain_welcome', lang), show_alert=True,
-                            cache_time=60)
-    elif query.data == 'on_welcome':
-        if data['start_msg']:
-            data['start_msg'] = ''
-            save_data()
-            query.answer(MSG('welcome_removed', lang), show_alert=True)
-        return query.message.edit_reply_markup(get_settings_keyboard(lang))
-    elif query.data == 'admin_list':
-        return query.message.edit(admin_list(lang), reply_markup=keyboard)
-    elif query.data == 'block_list':
-        return query.message.edit(block_list(lang), reply_markup=keyboard)
-    elif query.data == 'back':
-        return query.message.edit(MSG('settings_msg', lang),
-                                  reply_markup=get_settings_keyboard(lang))
-    elif query.data in ['block', 'admins', 'welcome', 'group']:
-        return query.message.edit(MSG(f'help_{query.data}', lang),
-                                  disable_web_page_preview=True,
-                                  reply_markup=get_admin_help_keyboard(lang))
+    try:
+        if query.data == 'lang':
+            for k in MSG.locales.keys():
+                keyboard.inline_keyboard.append(
+                    [InlineKeyboardButton(text=MSG(k), callback_data=k)])
+            return query.message.edit(MSG('chang_lang', lang),
+                                      reply_markup=keyboard)
+        elif query.data == 'explain_welcome':
+            return query.answer(MSG('explain_welcome', lang), show_alert=True,
+                                cache_time=60)
+        elif query.data == 'on_welcome':
+            if data['start_msg']:
+                data['start_msg'] = ''
+                save_data()
+                query.answer(MSG('welcome_removed', lang), show_alert=True)
+            return query.message.edit_reply_markup(get_settings_keyboard(lang))
+        elif query.data == 'admin_list':
+            return query.message.edit(admin_list(lang), reply_markup=keyboard)
+        elif query.data == 'block_list':
+            return query.message.edit(block_list(lang), reply_markup=keyboard)
+        elif query.data == 'back':
+            return query.message.edit(MSG('settings_msg', lang),
+                                      reply_markup=get_settings_keyboard(lang))
+        elif query.data in ['block', 'admins', 'welcome', 'group']:
+            return query.message.edit(MSG(f'help_{query.data}', lang),
+                                      disable_web_page_preview=True,
+                                      reply_markup=get_admin_help_keyboard(lang))
+    except MessageNotModified:
+        query.message.delete()
 
 
 @Client.on_callback_query(group=1)

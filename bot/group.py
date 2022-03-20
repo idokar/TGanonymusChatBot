@@ -63,14 +63,14 @@ async def joined_group(_, m: Message):
     for i in m.new_chat_members:
         if i.is_self:
             me = await m.chat.get_member('me')
-            if me.status in ["creator", "administrator"] and \
+            if me.status in ['creator', 'administrator'] and \
                     me.can_delete_messages and me.can_restrict_members:
                 return
             await m.reply(
                 MSG('bot_promote', add_user(tg_user=m.from_user).language))
             time.sleep(300)
     me = await m.chat.get_member('me')
-    if me.status in ["creator", "administrator"]:
+    if me.status in ['creator', 'administrator']:
         if me.can_delete_messages and me.can_restrict_members:
             return
     data['group'] = None

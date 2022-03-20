@@ -22,7 +22,7 @@ async def set_admins(_, m: Message):
         except ValueError:
             return _logger.debug("couldn't find a user, using wrong ID")
     elif not m.reply_to_message:
-        return _logger.debug("not replayed to a message")
+        return _logger.debug('not replayed to a message')
     else:
         uid = get_id(m)
         if not uid:

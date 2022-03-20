@@ -15,6 +15,7 @@
     "admin_welcome": "Welcome {name}\nyou are an admin on this bot, use /help to see all the commands list",
     "forwarded": "**You can't forward messages to this bot!**",
     "edited": "The message was edited ✏️\n",
+    "edit_expired": "I was unable to edit the message for the user",
     "user_not_found": "I couldn't find a user to reply to,\nPlease reply to the user message or the message that says \"reply to this message\"",
     "pic": "picture 🖼",
     "reply": "{uid}\n**link to the user**: [{name}](tg://user?id={uid})\n\n**reply to this message to reply to the user message**",

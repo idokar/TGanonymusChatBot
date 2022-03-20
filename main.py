@@ -65,7 +65,7 @@ def main(db_type: str, **db_kwargs):
     add_user(CREATOR, admin=True)
     _scheduler.add_job(clean_cash, trigger='interval', days=1)
     _scheduler.start()
-    _logger.info(f'Start running. PID: {os.getpid()}')
+    _logger.warning(f'Start running. PID: {os.getpid()}')
     bot.run()
 
 

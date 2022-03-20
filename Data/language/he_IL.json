@@ -15,6 +15,7 @@
     "admin_welcome": "ברוך הבא {name}\nאתה מנהל כעת ברובוט הזה, שלח /help בכדי לראות את רשימת הפקודות",
     "forwarded": "**לא ניתן להעביר הודעות לרובוט זה**",
     "edited": "ההודעה נערכה ✏️\n",
+    "edit_expired": "לא הצלחתי לערוך את ההודעה עבור המשתמש",
     "user_not_found": "לא מצאתי לאיזה משתמש להגיב,\nאנא השב להודעת המשתמש או להודעה שאומרת \"השב להודעה זו\"",
     "pic": "תמונה 🖼",
     "reply": "{uid}\n**קישור אל המשתמש**: [{name}](tg://user?id={uid})\n **השב להודעה זו כדי לענות למשתמש**",

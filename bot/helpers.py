@@ -19,10 +19,10 @@ messages = dict()
 DB = Database()
 MSG = Plate(f'.{os.sep}Data{os.sep}language')
 COMMANDS = {c: [MSG(c, i) for i in MSG.locales.keys()] for c in (
-    "block", "unblock",
-    "promote", "demote",
-    "group", "remove_group",
-    "welcome", "settings"
+    'block', 'unblock',
+    'promote', 'demote',
+    'group', 'remove_group',
+    'welcome', 'settings'
 )}
 
 
@@ -31,7 +31,7 @@ class User(DB.Entity):
     """
     User entity type to represent Telegram user
     """
-    uid = PrimaryKey(int)
+    uid = PrimaryKey(int, size=64)
     is_admin = Required(bool)
     language = Required(str)
     first_name = Optional(str)
@@ -60,7 +60,7 @@ class User(DB.Entity):
             return True
         try:
             user = await c.get_chat_member(data['group'], self.uid)
-            return bool(user.status not in ["restricted", "left", "kicked"])
+            return bool(user.status not in ['restricted', 'left', 'kicked'])
         except RPCError:
             return False
 
@@ -77,7 +77,7 @@ class User(DB.Entity):
 @db_session
 def get_user(user_id: int) -> Union[User, None]:
     """
-    function to get a user from the data base by user id.
+    getter function for getting users from the database by user id.
     :param user_id: the user telegram ID.
     :return: the user on None in case the user is not in DB.
     """
@@ -91,10 +91,10 @@ def get_user(user_id: int) -> Union[User, None]:
 def add_user(uid=None, tg_user=None, admin=False, language='en_US',
              first_name='', last_name='', username='') -> User:
     """
-    function to add a new user to the data base.
-    in case the user already exist in DB the user will be returned.
+    function to add a new user to the database.
+    in case the user is already exist in the DB the user will be returned.
 
-        Required uid or message
+        Required: uid or message
     :param uid: the user telegram ID.
     :type uid: int
     :param tg_user: a Telegram user type as represented in pyrogram.
@@ -145,19 +145,18 @@ def get_admins() -> Dict[int, User]:
 
 def save_data():
     """
-    save the dada json that contains the welcome message, group and blocked
+    save the data to json that contains the welcome message, group and blocked
     list.
     """
-    with open(f'{DATA_FILE}_data.json', "w", buffering=1) as file:
+    with open(f'{DATA_FILE}_data.json', 'w', buffering=1) as file:
         json.dump(data, file, indent=4)
     __logger.info('the data was saved')
 
 
 def clean_cash(message_date=None):
     """
-    function to clear all the messages that sent from the admins or a
-    specific one.
-    :param message_date: the pyrogram.types.Message.date (a non zero number)
+    delete all the messages sent from the admins or a specific one.
+    :param message_date: the pyrogram.types.Message.date (a none zero number)
     """
     global messages
     if message_date:
@@ -167,7 +166,7 @@ def clean_cash(message_date=None):
     else:
         del messages
         messages = dict()
-        __logger.info('All the messages was cleaning')
+        __logger.info('All the messages were clean')
 
 
 # ============================ pyrogram functions ============================
@@ -230,9 +229,9 @@ def get_id(message: Message) -> Union[int, None]:
     return uid
 
 
-def _is_admin(_, __, m: Message) -> bool:
+async def _is_admin(_, __, m: Message) -> bool:
     return bool(m.from_user and m.from_user.id in get_admins().keys())
 
 
 is_admin = filters.create(_is_admin)
-"""filter for admin messages."""
+"""filter for filtering admins messages."""

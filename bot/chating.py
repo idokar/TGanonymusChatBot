@@ -1,40 +1,50 @@
 import time
 
-from pyrogram.errors import PeerIdInvalid, UserIsBlocked, FloodWait
+from pyrogram.errors import PeerIdInvalid, UserIsBlocked, FloodWait,\
+    MessageEditTimeExpired, MessageIdInvalid
 from pyrogram.types import InputMediaAnimation, InputMediaAudio, \
     InputMediaDocument, InputMediaVideo, InputMediaPhoto
 
 from bot.helpers import *
+from main import CREATOR
 
 _logger = logging.getLogger(__name__)
 
 
-@db_session
 async def forward_to_admins(m: Message, user: User, message):
     """
-    function to forward the users messages to the admins.
+    forward the users messages to the admins.
     :param m: message to forward.
     :param user: the user who send the message.
     :param message: the key of which message to send to the admins.
+                    ['reply', 'edited']
     """
-    for k, v in get_admins().items():
+    for k in get_admins().keys():
         try:
             try:
                 msg = await m.forward(k)
             except FloodWait as flood:
                 time.sleep(flood.x + 3)
                 msg = await m.forward(k)
+            with db_session:
+                admin = get_user(k)
+                if not admin:
+                    continue
+                admin_lang = admin.language
+                admin_name = admin.name
             if not msg.forward_from or m.sticker:
-                await msg.reply(format_message(message, user, lang=v.language), True)
+                await msg.reply(format_message(message, user, lang=admin_lang), True)
             else:
                 if m.edit_date:
-                    await msg.reply(MSG("edited", v.language), quote=True)
+                    await msg.reply(MSG('edited', admin_lang), quote=True)
         except PeerIdInvalid:
-            _logger.error(f"Wasn't allow to send message to {v.name}")
+            _logger.error(f"Wasn't allow to send message to {admin_name}")
         except UserIsBlocked:
-            _logger.error(f"The Admin {v.name} blocked the bot")
-            delete(u for u in User if u.uid == v.uid)
-            commit()
+            _logger.error(f'The Admin {admin_name} blocked the bot')
+            with db_session:
+                if v.uid != CREATOR:
+                    delete(u for u in User if u.uid == v.uid)
+                    commit()
 
 
 async def edit_message(m: Message):
@@ -68,7 +78,7 @@ async def edit_message(m: Message):
                 InputMediaAudio(m.audio.file_id, m.audio.file_unique_id, **caption))
 
 
-@Client.on_message(filters.private & filters.command("start"))
+@Client.on_message(filters.private & filters.command('start'))
 async def start(c, m):
     """
     handler for the `/start` command.
@@ -119,11 +129,11 @@ async def return_message(c, m):
     uid = get_id(m)
     admin = add_user(tg_user=m.from_user)
     if not uid:
-        return _logger.debug("not a valid ID")
+        return _logger.debug(f'not a valid ID in the message {m}')
     if get_user(uid) is None:
         return await m.reply(MSG('blocked', admin.language), quote=True)
     elif get_user(uid).is_admin:
-        return _logger.debug("user is admin")
+        return _logger.debug('user is admin')
     try:
         if m.edit_date:
             await edit_message(m)
@@ -150,3 +160,5 @@ async def return_message(c, m):
         await m.reply(MSG('blocked', admin.language), quote=True)
         with db_session:
             delete(u for u in User if u.uid == uid)
+    except (KeyError, MessageEditTimeExpired, MessageIdInvalid):
+        await m.reply(MSG('edit_expired', admin.language), quote=True)
