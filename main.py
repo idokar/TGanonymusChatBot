@@ -22,7 +22,7 @@ elif re.search(r'[/:*?"<>|~&#%+{}\\]', _session) or len(_session) > 244:
     _logger.error(msg)
     raise NameError(msg)
 
-CREATOR = int(_config['init']['creator'])
+CREATOR = _config['init'].getint('creator')
 
 # set scheduler and Telegram client #
 _scheduler = BackgroundScheduler()
