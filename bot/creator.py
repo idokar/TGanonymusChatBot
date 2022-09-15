@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
                    filters.chat(CREATOR))
 async def set_admins(_, m: Message):
     """
-    handler function to promote / demote admins in the bot.
+    Handler function to promote / demote admins in the bot.
     (only for the CREATOR)
     :param _: pyrogram Client, unused argument
     :param m: the message.

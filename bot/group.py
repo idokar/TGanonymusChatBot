@@ -1,21 +1,21 @@
-import time
-
+from pyrogram.enums.chat_member_status import ChatMemberStatus
 from bot.helpers import *
 
 
 @Client.on_message(is_admin & ~filters.private & filters.command(COMMANDS['group']))
 def set_group(_, m: Message):
     """
-    handler function to limit the bot to a group.
-    only the group members will be allow to use the bot.
+    Handler function to limit the bot to a group.
+    Only the group members will be allowed to use the bot.
     :param _: pyrogram Client, unused argument
     :param m: command message.
     """
     if data['group']:
         return m.chat.leave()
-    if m.chat.get_member(m.from_user.id).status in ['creator', 'administrator']:
-        me = m.chat.get_member('me')
-        if me.can_delete_messages and me.can_restrict_members:
+    if m.chat.get_member(m.from_user.id).status in [ChatMemberStatus.OWNER,
+                                                    ChatMemberStatus.ADMINISTRATOR]:
+        privileges = m.chat.get_member('me').privileges
+        if privileges and privileges.can_delete_messages and privileges.can_restrict_members:
             data['group'] = m.chat.id
             save_data()
             return m.reply(MSG('group_added', get_user(m.from_user.id).language,
@@ -31,8 +31,8 @@ def set_group(_, m: Message):
     filters.left_chat_member)
 def unset_group(c, m: Message):
     """
-    handler function to unlimite the bot to a group.
-    all the users will be allow to use the bot.
+    Handler function to unlimited the bot to a group.
+    All the users will be allowed to use the bot.
     :param c: reference to the Client.
     :param m: command message.
     """
@@ -41,7 +41,8 @@ def unset_group(c, m: Message):
     if m.left_chat_member and m.left_chat_member.is_self:
         data['group'] = None
         save_data()
-    elif m.chat.get_member(m.from_user.id).status in ['creator', 'administrator']:
+    elif m.chat.get_member(m.from_user.id).status in [ChatMemberStatus.OWNER,
+                                                      ChatMemberStatus.ADMINISTRATOR]:
         data['group'] = None
         c.send_message(
             m.from_user.id,
@@ -53,8 +54,8 @@ def unset_group(c, m: Message):
 @Client.on_message(filters.new_chat_members)
 async def joined_group(_, m: Message):
     """
-    check permissions on joining the group. if someone added the bot, the bot
-    will check it's permissions immediately and after 5 minutes if necessary.
+    Check permissions on joining the group. If someone added the bot, the bot
+    will check its permissions immediately and after 5 minutes if necessary.
     :param _: pyrogram Client, unused argument
     :param m: join message.
     """
@@ -63,15 +64,17 @@ async def joined_group(_, m: Message):
     for i in m.new_chat_members:
         if i.is_self:
             me = await m.chat.get_member('me')
-            if me.status in ['creator', 'administrator'] and \
-                    me.can_delete_messages and me.can_restrict_members:
+            if me.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]\
+                    and me.privileges.can_delete_messages \
+                    and me.privileges.can_restrict_members:
                 return
             await m.reply(
                 MSG('bot_promote', add_user(tg_user=m.from_user).language))
-            time.sleep(300)
+            await asyncio.sleep(300)
+            break
     me = await m.chat.get_member('me')
-    if me.status in ['creator', 'administrator']:
-        if me.can_delete_messages and me.can_restrict_members:
+    if me.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
+        if me.privileges.can_delete_messages and me.privileges.can_restrict_members:
             return
     data['group'] = None
     save_data()

@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 
 async def forward_to_admins(m: Message, user: User, message):
     """
-    forward the users messages to the admins.
+    Forward the users messages to the admins.
     :param m: message to forward.
     :param user: the user who send the message.
     :param message: the key of which message to send to the admins.
@@ -24,7 +24,7 @@ async def forward_to_admins(m: Message, user: User, message):
             try:
                 msg = await m.forward(k)
             except FloodWait as flood:
-                time.sleep(flood.x + 3)
+                time.sleep(flood.value + 3)
                 msg = await m.forward(k)
             with db_session:
                 admin = get_user(k)
@@ -33,7 +33,7 @@ async def forward_to_admins(m: Message, user: User, message):
                 admin_lang = admin.language
                 admin_name = admin.name
             if not msg.forward_from or m.sticker:
-                await msg.reply(format_message(message, user, lang=admin_lang), True)
+                await msg.reply(format_message(message, user, lang=admin_lang), quote=True)
             else:
                 if m.edit_date:
                     await msg.reply(MSG('edited', admin_lang), quote=True)
@@ -49,15 +49,17 @@ async def forward_to_admins(m: Message, user: User, message):
 
 async def edit_message(m: Message):
     """
-    edit any type of pyrogram message using the messages dict.
+    Edit any type of pyrogram message using the messages dict.
     :param m: pyrogram.Message to edit.
     """
     if m.text:
-        messages[m.date] = await messages[m.date].edit(m.text)
+        messages[m.date] = await messages[m.date].edit(m.text, entities=m.entities)
     elif m.caption and m.caption != messages[m.date].caption:
-        messages[m.date] = await messages[m.date].edit_caption(m.caption)
+        messages[m.date] = await messages[m.date].edit_caption(
+            m.caption, caption_entities=m.caption_entities)
     elif m.media:
-        caption = {'caption': m.caption + '\n'} if m.caption else {}
+        caption = {'caption': m.caption + '\n',
+                   'caption_entities': m.caption_entities} if m.caption else {}
         if m.photo and m.photo != messages[m.date].photo:
             messages[m.date] = await messages[m.date].edit_media(
                 InputMediaPhoto(m.photo.file_id, m.photo.file_unique_id,
@@ -81,7 +83,7 @@ async def edit_message(m: Message):
 @Client.on_message(filters.private & filters.command('start'))
 async def start(c, m):
     """
-    handler for the `/start` command.
+    Handler for the `/start` command.
     :param c: reference to the Client.
     :param m: the message.
     """
@@ -103,9 +105,11 @@ async def start(c, m):
 
 @Client.on_message(filters.private & ~filters.me & ~is_admin &
                    ~filters.create(lambda _, __, m: bool(m.command)), group=1)
+@Client.on_edited_message(filters.private & ~filters.me & ~is_admin &
+                          ~filters.create(lambda _, __, m: bool(m.command)), group=1)
 async def get_messages(c, m):
     """
-    handler for getting messages from the users.
+    Handler for getting messages from the users.
     :param c: reference to the Client.
     :param m: the message.
     """
@@ -120,9 +124,10 @@ async def get_messages(c, m):
 
 
 @Client.on_message(is_admin & filters.private & filters.reply, group=1)
+@Client.on_edited_message(is_admin & filters.private & filters.reply, group=1)
 async def return_message(c, m):
     """
-    handler for return messages to the users.
+    Handler for return messages to the users.
     :param c: reference to the Client.
     :param m: the message.
     """
@@ -138,8 +143,7 @@ async def return_message(c, m):
         if m.edit_date:
             await edit_message(m)
         else:
-            message = m.copy(uid)
-            messages[m.date] = await message
+            messages[m.date] = await m.copy(uid)
         with db_session:
             for k, v in get_admins().items():
                 if k != m.from_user.id:
@@ -150,7 +154,7 @@ async def return_message(c, m):
                                 'admin_edit_ans' if m.edit_date else 'admin_ans',
                                 get_user(uid),
                                 lang=v.language,
-                                admin=admin.link(),
+                                admin=admin.name,
                                 msg=m.text or MSG('pic', v.language)
                             ))
 

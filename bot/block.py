@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 @db_session
 def report_to_admins(admin: User, user: User, c: Client, message: str):
     """
-    function to report the admins that admin blocked / released user.
+    Function to report the admins that admin blocked / released user.
     :param admin: the admin that blocked / released the user.
     :param user: the user that was blocked / released.
     :param c: pyrogram.Client to send the message.
@@ -18,7 +18,7 @@ def report_to_admins(admin: User, user: User, c: Client, message: str):
             try:
                 c.send_message(
                     k,
-                    format_message(message, user, admin=admin.link(), lang=v.language)
+                    format_message(message, user, admin=admin.name, lang=v.language)
                 )
             except PeerIdInvalid:
                 _logger.error(f"Wasn't allow to send message to {v.name}")
@@ -28,8 +28,9 @@ def report_to_admins(admin: User, user: User, c: Client, message: str):
                    filters.command(COMMANDS['block']))
 def block(c: Client, m: Message):
     """
-    function to block a user from using the bot.
-
+    Function to block a user from using the bot.
+    :param c: reference to the Client.
+    :param m: the message.
     """
     user = get_id(m)
     if not user:
@@ -52,8 +53,10 @@ def block(c: Client, m: Message):
                    filters.command(COMMANDS['unblock']))
 def unblock(c: Client, m: Message):
     """
-    unblock users, allow user to use the bot again. this function tell the user
+    Unblock users, allow user to use the bot again. This function tell the user
     that he is not blocked.
+    :param c: reference to the Client.
+    :param m: the message.
     """
     user = get_id(m)
     if not user:

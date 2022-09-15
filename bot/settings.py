@@ -9,13 +9,13 @@ from main import CREATOR
 
 def block_list(lang: str) -> str:
     """
-    generate the blocked users list.
+    Generate the blocked users list.
     :param lang: user language like in the keys of 'languages'
     """
     msg = MSG('block_list', lang)
     for i in data['ban']:
         user = get_user(int(i))
-        msg += format_message('{link} ({uid})\n', user) if user else i
+        msg += format_message('{name} ({uid})\n', user) if user else i
     msg += '**~empty~**' if not data['ban'] else ''
     return msg
 
@@ -23,21 +23,21 @@ def block_list(lang: str) -> str:
 @db_session
 def admin_list(lang: str) -> str:
     """
-    generate the admins list.
+    Generate the admins list.
     :param lang: user language like in the keys of 'languages'
     """
     msg = ''
     for admin in get_admins().values():
         if admin.uid == CREATOR:
-            msg = format_message('🎖 {link} ({uid})\n', admin) + msg
+            msg = format_message('🎖 {name} ({uid})\n', admin) + msg
         else:
-            msg += format_message('🥇 {link} ({uid})\n', admin)
+            msg += format_message('🥇 {name} ({uid})\n', admin)
     return MSG('admin_list', lang) + msg
 
 
 def get_settings_keyboard(lang: str) -> InlineKeyboardMarkup:
     """
-    generate the admins settings keyboard.
+    Generate the admins settings keyboard.
     :param lang: user language like in the keys of 'languages'
     """
     return InlineKeyboardMarkup([
@@ -57,7 +57,7 @@ def get_settings_keyboard(lang: str) -> InlineKeyboardMarkup:
 
 def get_admin_help_keyboard(lang: str) -> InlineKeyboardMarkup:
     """
-    generate the admins help keyboard.
+    Generate the admins help keyboard.
     :param lang: user language like in the keys of 'languages'
     """
     return InlineKeyboardMarkup([
@@ -70,9 +70,11 @@ def get_admin_help_keyboard(lang: str) -> InlineKeyboardMarkup:
 
 @Client.on_message(is_admin & filters.private & filters.text &
                    filters.command(COMMANDS['welcome']))
+@Client.on_edited_message(is_admin & filters.private & filters.text &
+                          filters.command(COMMANDS['welcome']))
 def start_msg(_, m: Message):
     """
-    handler function to set or update the start message.
+    Handler function to set or update the start message.
     [read more about format text](https://core.telegram.org/bots/api#formatting-options)
     :param _: pyrogram Client, unused argument
     :param m: the command message.
@@ -81,16 +83,15 @@ def start_msg(_, m: Message):
             `$first_name` - replaced with the user Telegram first name
             `$last_name` - replaced with the user Telegram last name
             `$username` - replaced with the user Telegram username
-            `$user` - replaced with a link to the user
             `$name` - replaced with the full name of the user
     """
     text = m.text[len(m.command[0]) + 2:].replace('{', '{{').replace('}', '}}')
     text = text.replace('$id', '{uid}').replace('$first_name', "{first}")
     text = text.replace('$last_name', '{last}').replace('$username', '{username}')
-    text = text.replace('$user', '{link}').replace('$name', '{name}')
+    text = text.replace('$name', '{name}').replace(r'|', '||')
     text = sub(r'~', '~~', sub(r'_', '__', sub(r'-', '--', text)))
     text = sub(r'\\--', '-', sub(r'\\__', '_', sub(r'\*', '**', text)))
-    text = sub(r'\\~~', '~', sub(r'\\\*\*', '*', text))
+    text = sub(r'\\~~', '~', sub(r'\\\|\|', r'|', sub(r'\\\*\*', '*', text)))
     try:
         m.reply(format_message(text, get_user(m.from_user.id))).delete()
     except RPCError:
@@ -104,7 +105,7 @@ def start_msg(_, m: Message):
 @Client.on_message(filters.command('help') & filters.private)
 def info_and_help(_, m: Message):
     """
-    send the help message.
+    Send the help message.
     :param _: pyrogram Client, unused argument
     :param m: the `/help` command message.
     """
@@ -124,7 +125,7 @@ def info_and_help(_, m: Message):
 @Client.on_message(filters.command(COMMANDS['settings']) & is_admin & filters.private)
 def settings_keyboard(_, m: Message):
     """
-    send the settings keyboard on a command
+    Send the settings keyboard on a command
     :param _: pyrogram Client, unused argument
     :param m: the command message.
     """
@@ -136,7 +137,7 @@ def settings_keyboard(_, m: Message):
 @Client.on_callback_query(is_admin)
 def refresh_admin_keyboards(_, query: CallbackQuery):
     """
-    refreshing the settings and the help keyboards.
+    Refreshing the settings and the help keyboards.
     :param _: pyrogram Client, unused argument
     :param query: when the user press the keyboard
                   the query returns to this function.
@@ -180,7 +181,7 @@ def refresh_admin_keyboards(_, query: CallbackQuery):
 @Client.on_callback_query(group=1)
 def change_lang_keyboard(_, query: CallbackQuery):
     """
-    refreshing the the user help keyboard by change the language or the
+    Refreshing the user help keyboard by change the language or the
     settings.
     :param _: pyrogram Client, unused argument.
     :param query: when the user press the keyboard the query returns to this
