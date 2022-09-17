@@ -15,7 +15,7 @@ def block_list(lang: str) -> str:
     msg = MSG('block_list', lang)
     for i in data['ban']:
         user = get_user(int(i))
-        msg += format_message('{name} ({uid})\n', user) if user else i
+        msg += format_message('{link} ({uid})\n', user) if user else i
     msg += '**~empty~**' if not data['ban'] else ''
     return msg
 
@@ -29,9 +29,9 @@ def admin_list(lang: str) -> str:
     msg = ''
     for admin in get_admins().values():
         if admin.uid == CREATOR:
-            msg = format_message('🎖 {name} ({uid})\n', admin) + msg
+            msg = format_message('🎖 {link} ({uid})\n', admin) + msg
         else:
-            msg += format_message('🥇 {name} ({uid})\n', admin)
+            msg += format_message('🥇 {link} ({uid})\n', admin)
     return MSG('admin_list', lang) + msg
 
 
@@ -164,9 +164,11 @@ def refresh_admin_keyboards(_, query: CallbackQuery):
                 query.answer(MSG('welcome_removed', lang), show_alert=True)
             return query.message.edit_reply_markup(get_settings_keyboard(lang))
         elif query.data == 'admin_list':
-            return query.message.edit(admin_list(lang), reply_markup=keyboard)
+            return query.message.edit(admin_list(lang), disable_web_page_preview=True,
+                                      reply_markup=keyboard)
         elif query.data == 'block_list':
-            return query.message.edit(block_list(lang), reply_markup=keyboard)
+            return query.message.edit(block_list(lang), disable_web_page_preview=True,
+                                      reply_markup=keyboard)
         elif query.data == 'back':
             return query.message.edit(MSG('settings_msg', lang),
                                       reply_markup=get_settings_keyboard(lang))

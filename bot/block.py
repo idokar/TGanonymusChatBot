@@ -18,7 +18,8 @@ def report_to_admins(admin: User, user: User, c: Client, message: str):
             try:
                 c.send_message(
                     k,
-                    format_message(message, user, admin=admin.name, lang=v.language)
+                    format_message(message, user, admin=admin.link(), lang=v.language),
+                    disable_web_page_preview=True
                 )
             except PeerIdInvalid:
                 _logger.error(f"Wasn't allow to send message to {v.name}")
@@ -41,7 +42,8 @@ def block(c: Client, m: Message):
     admin = get_user(m.from_user.id)
     if str(user.uid) not in data['ban']:
         data['ban'].append(str(user.uid))
-        m.reply(format_message('user_block', user, lang=admin.language), quote=True)
+        m.reply(format_message('user_block', user, lang=admin.language), quote=True,
+                disable_web_page_preview=True)
         save_data()
     else:
         return m.reply(
@@ -67,7 +69,8 @@ def unblock(c: Client, m: Message):
     admin = get_user(m.from_user.id)
     if str(user.uid) in data['ban']:
         data['ban'].remove(str(user.uid))
-        m.reply(format_message('user_unblock', user, lang=admin.language), quote=True)
+        m.reply(format_message('user_unblock', user, lang=admin.language), quote=True,
+                disable_web_page_preview=True)
         save_data()
         try:
             c.send_message(user.uid, MSG('unban_msg', user.language))

@@ -67,6 +67,15 @@ class User(DB.Entity):
         except RPCError:
             return False
 
+    def link(self) -> str:
+        """
+        Function to get a link to the user
+        :return: Markdown hyperlink to the user
+        """
+        if self.username:
+            return f'[{self.name or self.uid}](https://t.me/{self.username[1:]})'
+        return f'[{self.name or self.uid}](tg://user?id={self.uid})'
+
 
 @db_session
 def get_user(user_id: int) -> Union[User, None]:
@@ -173,6 +182,7 @@ def format_message(message: str, user: User, **kwargs) -> str:
         {last} (the user last name),
         {username} (the user telegram username),
         {name} (the full name of the user)
+        {link} (link to the user (not always exists))
 
     :param message: a message to format or key of message if 'lang' in kwargs
     :param user: User as represents in the database
@@ -188,6 +198,7 @@ def format_message(message: str, user: User, **kwargs) -> str:
             last=user.last_name or '',
             username=user.username or '',
             name=user.name,
+            link=user.link(),
             **kwargs
         )
     return message.format(
@@ -196,6 +207,7 @@ def format_message(message: str, user: User, **kwargs) -> str:
         last=user.last_name or '',
         username=user.username or '',
         name=user.name,
+        link=user.link(),
         **kwargs
     )
 
@@ -224,5 +236,10 @@ async def _is_admin(_, __, m: Message) -> bool:
     return bool(m.from_user and m.from_user.id in get_admins().keys())
 
 
+async def _is_command(_, __, m: Message) -> bool:
+    return bool(m.command)
+
 is_admin = filters.create(_is_admin)
 """filter for filtering admins messages."""
+is_command = filters.create(_is_command)
+"""filter for filtering command messages."""

@@ -33,7 +33,8 @@ async def forward_to_admins(m: Message, user: User, message):
                 admin_lang = admin.language
                 admin_name = admin.name
             if not msg.forward_from or m.sticker:
-                await msg.reply(format_message(message, user, lang=admin_lang), quote=True)
+                await msg.reply(format_message(message, user, lang=admin_lang),
+                                quote=True, disable_web_page_preview=True)
             else:
                 if m.edit_date:
                     await msg.reply(MSG('edited', admin_lang), quote=True)
@@ -103,10 +104,8 @@ async def start(c, m):
             return await m.reply(format_message(data['non_participant'], user))
 
 
-@Client.on_message(filters.private & ~filters.me & ~is_admin &
-                   ~filters.create(lambda _, __, m: bool(m.command)), group=1)
-@Client.on_edited_message(filters.private & ~filters.me & ~is_admin &
-                          ~filters.create(lambda _, __, m: bool(m.command)), group=1)
+@Client.on_message(filters.private & ~filters.me & ~is_admin & ~is_command, group=1)
+@Client.on_edited_message(filters.private & ~filters.me & ~is_admin & ~is_command, group=1)
 async def get_messages(c, m):
     """
     Handler for getting messages from the users.
@@ -123,8 +122,8 @@ async def get_messages(c, m):
     await forward_to_admins(m, user, 'edited' if m.edit_date else 'reply')
 
 
-@Client.on_message(is_admin & filters.private & filters.reply, group=1)
-@Client.on_edited_message(is_admin & filters.private & filters.reply, group=1)
+@Client.on_message(is_admin & filters.private & filters.reply & ~is_command, group=1)
+@Client.on_edited_message(is_admin & filters.private & filters.reply & ~is_command, group=1)
 async def return_message(c, m):
     """
     Handler for return messages to the users.
@@ -144,25 +143,26 @@ async def return_message(c, m):
             await edit_message(m)
         else:
             messages[m.date] = await m.copy(uid)
-        with db_session:
-            for k, v in get_admins().items():
-                if k != m.from_user.id:
-                    try:
-                        await c.send_message(
-                            k,
-                            format_message(
-                                'admin_edit_ans' if m.edit_date else 'admin_ans',
-                                get_user(uid),
-                                lang=v.language,
-                                admin=admin.name,
-                                msg=m.text or MSG('pic', v.language)
-                            ))
-
-                    except (PeerIdInvalid, UserIsBlocked):
-                        _logger.error(f"Wasn't allow to send message to {v.name}")
     except UserIsBlocked:
         await m.reply(MSG('blocked', admin.language), quote=True)
         with db_session:
             delete(u for u in User if u.uid == uid)
     except (KeyError, MessageEditTimeExpired, MessageIdInvalid):
         await m.reply(MSG('edit_expired', admin.language), quote=True)
+    else:
+        with db_session:
+            for k, v in get_admins().items():
+                try:
+                    if k != m.from_user.id:
+                        await c.send_message(
+                            k,
+                            format_message(
+                                'admin_edit_ans' if m.edit_date else 'admin_ans',
+                                get_user(uid),
+                                lang=v.language,
+                                admin=admin.link(),
+                                msg=m.text or MSG('pic', v.language)
+                            ),
+                            disable_web_page_preview=True)
+                except (PeerIdInvalid, UserIsBlocked):
+                    _logger.error(f"Wasn't allow to send message to {v.name}")

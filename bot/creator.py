@@ -34,5 +34,5 @@ async def set_admins(_, m: Message):
     await m.reply(
         format_message('success_add_admin' if state else 'success_remove_admin',
                        get_user(uid), lang=get_user(m.from_user.id).language
-                       ))
+                       ), disable_web_page_preview=True)
     raise StopPropagation()
