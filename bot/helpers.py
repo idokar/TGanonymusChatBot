@@ -224,10 +224,8 @@ def get_id(message: Message) -> Union[int, None]:
     if isinstance(uid, str) and uid.isdigit():
         uid = int(uid)
     if not isinstance(uid, int):
-        asyncio.run(message.reply(MSG(
-                'user_not_found',
-                add_user(tg_user=message.from_user).language
-        )))
+        message.reply(MSG('user_not_found',
+                          add_user(tg_user=message.from_user).language))
         return
     return uid
 
